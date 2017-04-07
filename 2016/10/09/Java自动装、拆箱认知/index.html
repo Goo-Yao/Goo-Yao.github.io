@@ -1,0 +1,1062 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Java基础," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Goo's Tracks" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="前言 之前虽然略有听闻自动装箱、自动拆箱，却一直不清楚装箱、拆箱到底是什么，直到今天看到一段有趣的小程序，决定研究一番装箱与拆箱。">
+<meta name="keywords" content="Java基础">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java自动装、拆箱解析">
+<meta property="og:url" content="http://yoursite.com/2016/10/09/Java自动装、拆箱认知/index.html">
+<meta property="og:site_name" content="Goo's Tracks">
+<meta property="og:description" content="前言 之前虽然略有听闻自动装箱、自动拆箱，却一直不清楚装箱、拆箱到底是什么，直到今天看到一段有趣的小程序，决定研究一番装箱与拆箱。">
+<meta property="og:updated_time" content="2016-10-23T12:46:22.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Java自动装、拆箱解析">
+<meta name="twitter:description" content="前言 之前虽然略有听闻自动装箱、自动拆箱，却一直不清楚装箱、拆箱到底是什么，直到今天看到一段有趣的小程序，决定研究一番装箱与拆箱。">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2016/10/09/Java自动装、拆箱认知/"/>
+
+  <title> Java自动装、拆箱解析 | Goo's Tracks </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//tajs.qq.com/stats?sId=58321747";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+  
+  
+    
+  
+  
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Goo's Tracks</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">记一段技术小足迹</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup">
+ <span class="search-icon fa fa-search"></span>
+ <input type="text" id="local-search-input">
+ <div id="local-search-result"></div>
+ <span class="popup-btn-close">close</span>
+</div>
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Java自动装、拆箱解析
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-10-09T19:19:04+08:00" content="2016-10-09">
+              2016-10-09
+            </time>
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2016/10/09/Java自动装、拆箱认知/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/10/09/Java自动装、拆箱认知/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             <span id="/2016/10/09/Java自动装、拆箱认知/" class="leancloud_visitors" data-flag-title="Java自动装、拆箱解析">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p> 之前虽然略有听闻自动装箱、自动拆箱，却一直不清楚装箱、拆箱到底是什么，直到今天看到一段有趣的小程序，决定研究一番装箱与拆箱。<a id="more"></a><br> <figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">     <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</div><div class="line">         Integer i1 = <span class="number">30</span>;</div><div class="line">         Integer i2 = <span class="number">30</span>;</div><div class="line">         Integer i3 = <span class="number">128</span>;</div><div class="line">         Integer i4 = <span class="number">128</span>;</div><div class="line">         System.out.println(i1 == i2);</div><div class="line">         System.out.println(i3 == i4);</div><div class="line">     &#125;</div><div class="line">     <span class="comment">//输出结果：</span></div><div class="line">     <span class="comment">//true</span></div><div class="line">     <span class="comment">//false</span></div><div class="line">     <span class="comment">//why? 抱着疑问，开始探索！</span></div></pre></td></tr></table></figure></p>
+<ul>
+<li>基本概念<ul>
+<li>自动装箱：八种基本数据类型在某些条件下使用时候，会自动变为对应的包装类型。（上面的代码，就是自动装箱的一种）</li>
+<li>自动拆箱：八种包装类型在某些条件下使用时候，会自动变成对应的基本数据类型。</li>
+</ul>
+</li>
+<li>简单来说，代码表示是这样的<ul>
+<li>自动装箱：Integer i = 10;(int -&gt; Integer) </li>
+<li>自动拆箱：int n = i;(Integer -&gt; int)</li>
+</ul>
+</li>
+</ul>
+<p>附：八种基本数据类型</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">基本类型</th>
+<th style="text-align:center">占用空间(Byte)</th>
+<th style="text-align:center">表示范围</th>
+<th style="text-align:center">包装类型</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">boolean</td>
+<td style="text-align:center">1/8</td>
+<td style="text-align:center">true/false</td>
+<td style="text-align:center">Boolean</td>
+</tr>
+<tr>
+<td style="text-align:center">char</td>
+<td style="text-align:center">2</td>
+<td style="text-align:center">-128~127</td>
+<td style="text-align:center">Character</td>
+</tr>
+<tr>
+<td style="text-align:center">byte</td>
+<td style="text-align:center">1</td>
+<td style="text-align:center">-128~127</td>
+<td style="text-align:center">Byte</td>
+</tr>
+<tr>
+<td style="text-align:center">short</td>
+<td style="text-align:center">2</td>
+<td style="text-align:center">-2^15 ~ 2^15-1</td>
+<td style="text-align:center">Short</td>
+</tr>
+<tr>
+<td style="text-align:center">int</td>
+<td style="text-align:center">4</td>
+<td style="text-align:center">-2^31 ~ 2^31-1</td>
+<td style="text-align:center">Integer</td>
+</tr>
+<tr>
+<td style="text-align:center">long</td>
+<td style="text-align:center">8</td>
+<td style="text-align:center">-2^63 ~ 2^63-1</td>
+<td style="text-align:center">Long</td>
+</tr>
+<tr>
+<td style="text-align:center">float</td>
+<td style="text-align:center">4</td>
+<td style="text-align:center">-3.403E38 ~ 3.403E38</td>
+<td style="text-align:center">Float</td>
+</tr>
+<tr>
+<td style="text-align:center">double</td>
+<td style="text-align:center">8</td>
+<td style="text-align:center">-1.798E308 ~ 1.798E308</td>
+<td style="text-align:center">Double</td>
+</tr>
+</tbody>
+</table>
+<h2 id="认识自动装箱"><a href="#认识自动装箱" class="headerlink" title="认识自动装箱"></a>认识自动装箱</h2><p> 回看看开头的代码，第一次输出true，很合乎情理，而第二次输出却是false，这就很让人疑惑了。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</div><div class="line">         Integer i1 = <span class="number">30</span>;</div><div class="line">         Integer i2 = <span class="number">30</span>;</div><div class="line">         Integer i3 = <span class="number">128</span>;</div><div class="line">         Integer i4 = <span class="number">128</span>;</div><div class="line">         System.out.println(i1 == i2);</div><div class="line">         System.out.println(i3 == i4);</div><div class="line">     &#125;</div><div class="line">     <span class="comment">//输出结果：</span></div><div class="line">     <span class="comment">//true</span></div><div class="line">     <span class="comment">//false</span></div><div class="line">     <span class="comment">//why? 抱着疑问，开始探索！</span></div></pre></td></tr></table></figure></p>
+<p><strong>解析：</strong><br>当包装器类进行“==”比较时，内部会调用 Integer.valueOf方法进行自动装箱（int -&gt; Integer）<br> <figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line">   <span class="comment">/**</span></div><div class="line">      * Returns an &#123;<span class="doctag">@code</span> Integer&#125; instance representing the specified</div><div class="line">      * &#123;<span class="doctag">@code</span> int&#125; value.  If a new &#123;<span class="doctag">@code</span> Integer&#125; instance is not</div><div class="line">      * required, this method should generally be used in preference to</div><div class="line">      * the constructor &#123;<span class="doctag">@link</span> #Integer(int)&#125;, as this method is likely</div><div class="line">      * to yield significantly better space and time performance by</div><div class="line">      * caching frequently requested values.</div><div class="line">      *</div><div class="line">      * This method will always cache values in the range -128 to 127,</div><div class="line">      * inclusive, and may cache other values outside of this range.</div><div class="line">      *</div><div class="line">      * <span class="doctag">@param</span>  i an &#123;<span class="doctag">@code</span> int&#125; value.</div><div class="line">      * <span class="doctag">@return</span> an &#123;<span class="doctag">@code</span> Integer&#125; instance representing &#123;<span class="doctag">@code</span> i&#125;.</div><div class="line">      * <span class="doctag">@since</span>  1.5</div><div class="line">      */</div><div class="line">     <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Integer <span class="title">valueOf</span><span class="params">(<span class="keyword">int</span> i)</span> </span>&#123;</div><div class="line">         <span class="keyword">if</span> (i &gt;= IntegerCache.low &amp;&amp; i &lt;= IntegerCache.high)</div><div class="line">             <span class="keyword">return</span> IntegerCache.cache[i + (-IntegerCache.low)];</div><div class="line">         <span class="keyword">return</span> <span class="keyword">new</span> Integer(i);</div><div class="line">     &#125;</div></pre></td></tr></table></figure></p>
+<p> 从源码中可见，Integer对象内部有IntegerCache类，可缓存（-128~127范围的数值），如果超过了，则会返回一个新的Integer类。由于“==”比较的是内存地址，因此，在“-128~127”数值范围内，比较的是同一个对象，得到true，而超过了该范围，则是返回自动装箱后的新对象，因此得到false。</p>
+<p><strong>总结：</strong></p>
+<ol>
+<li>Integer、Short、Byte、Character、Long这几个包装类的valueOf方法的实现是类似的</li>
+<li>Double、Float的valueOf方法的实现是类似的</li>
+<li>Boolean的valueOf方法的实现是个三目运算，形如<code>return (b ? TRUE : FALSE);</code></li>
+</ol>
+<h2 id="认识自动拆箱"><a href="#认识自动拆箱" class="headerlink" title="认识自动拆箱"></a>认识自动拆箱</h2><p> 再看一段代码演示自动拆箱：<br> <figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">     <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span>  </span>&#123;</div><div class="line">         Integer i1 = <span class="number">30</span>;</div><div class="line">         <span class="keyword">int</span> i2 = <span class="number">30</span>;</div><div class="line">         <span class="keyword">int</span> i3 = <span class="number">128</span>;</div><div class="line">         Integer i4 = <span class="number">128</span>;</div><div class="line">         System.out.println(i1 == i2);</div><div class="line">         System.out.println(i3 == i4);</div><div class="line">     &#125;</div><div class="line">     <span class="comment">//输出结果：</span></div><div class="line">     <span class="comment">//true</span></div><div class="line">     <span class="comment">//true</span></div></pre></td></tr></table></figure></p>
+<p><strong>解析：</strong><br>当与基本类型进行“==”比较时，包装器类会调用intValue方法进行自动拆箱（Integer -&gt; int）<br> <figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">     <span class="comment">/**</span></div><div class="line">      * Returns the value of this &#123;<span class="doctag">@code</span> Integer&#125; as an</div><div class="line">      * &#123;<span class="doctag">@code</span> int&#125;.</div><div class="line">      */</div><div class="line">     <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">intValue</span><span class="params">()</span> </span>&#123;</div><div class="line">         <span class="keyword">return</span> value;</div><div class="line">     &#125;</div></pre></td></tr></table></figure></p>
+<p> 从源码中可见，直接返回真实值，没有范围限制，因此两次输出均为true</p>
+<h2 id="装箱与拆箱如何实现？"><a href="#装箱与拆箱如何实现？" class="headerlink" title="装箱与拆箱如何实现？"></a>装箱与拆箱如何实现？</h2><p> 看到这里，可能会有人疑问：“从哪里可用看出自动装箱调用了valueOf方法而自动拆箱则调用了intValue方法呢？”答案便是 - 通过反编译class文件，下面作简单演示：<br> <figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">StudyJava</span></span>&#123;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span></span>&#123;</div><div class="line">        Integer i = <span class="number">1</span>;</div><div class="line">        <span class="keyword">int</span> i2 = i;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p> 编译后，在控制台中使用 javap -c StudyJava 命令可得到：<br> <figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">Compiled from "StudyJava.java"</div><div class="line">public class StudyJava &#123;</div><div class="line">  public StudyJava();</div><div class="line">    Code:</div><div class="line">       0: aload_0</div><div class="line">       1: invokespecial #1                  // Method java/lang/Object."&lt;init&gt;":()V</div><div class="line">       4: return</div><div class="line">  public static void main(java.lang.String[]);</div><div class="line">    Code:</div><div class="line">       0: iconst_1</div><div class="line">       1: invokestatic  #2                  // Method java/lang/Integer.valueOf:(I)Ljava/lang/Integer;</div><div class="line">       4: astore_1</div><div class="line">       5: aload_1</div><div class="line">       6: invokevirtual #3                  // Method java/lang/Integer.intValue:()I</div><div class="line">       9: istore_2</div><div class="line">      10: return</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p> 从反编译得到的字节码中不难看出，装箱（int -&gt; Integer）时候的确调用了Integer.valueOf方法；拆箱时则调用Integer.intValue方法</p>
+<h2 id="需要注意的地方"><a href="#需要注意的地方" class="headerlink" title="需要注意的地方"></a>需要注意的地方</h2><ul>
+<li><p>Double、Float的valueOf方法的实现与Integer、Short、Byte、Character、Long这几个类的实现方法有区别。<br><strong>原因：</strong>在一定范围内，整数数值是有限的，而对于浮点数，则不是。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line"><span class="comment">/**</span></div><div class="line">     * Returns a &#123;<span class="doctag">@code</span> Double&#125; instance representing the specified</div><div class="line">     * &#123;<span class="doctag">@code</span> double&#125; value.</div><div class="line">     * If a new &#123;<span class="doctag">@code</span> Double&#125; instance is not required, this method</div><div class="line">     * should generally be used in preference to the constructor</div><div class="line">     * &#123;<span class="doctag">@link</span> #Double(double)&#125;, as this method is likely to yield</div><div class="line">     * significantly better space and time performance by caching</div><div class="line">     * frequently requested values.</div><div class="line">     *</div><div class="line">     * <span class="doctag">@param</span>  d a double value.</div><div class="line">     * <span class="doctag">@return</span> a &#123;<span class="doctag">@code</span> Double&#125; instance representing &#123;<span class="doctag">@code</span> d&#125;.</div><div class="line">     * <span class="doctag">@since</span>  1.5</div><div class="line">     */</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Double <span class="title">valueOf</span><span class="params">(<span class="keyword">double</span> d)</span> </span>&#123;</div><div class="line">        <span class="comment">//并没有缓存，直接返回一个新的实例化对象</span></div><div class="line">        <span class="keyword">return</span> <span class="keyword">new</span> Double(d);</div><div class="line">    &#125;</div></pre></td></tr></table></figure>
+<p>明白源码中的实现后，相信大家对下面代码输出结果也都理解了吧~</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">StudyJava</span></span>&#123;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span></span>&#123;</div><div class="line">        Double i1 = <span class="number">100.0</span>;</div><div class="line">        Double i2 = <span class="number">100.0</span>;</div><div class="line">        Double i3 = <span class="number">200.0</span>;</div><div class="line">        Double i4 = <span class="number">200.0</span>;</div><div class="line">        System.out.println(i1==i2);</div><div class="line">        System.out.println(i3==i4);</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"><span class="comment">//输出结果</span></div><div class="line"><span class="comment">//false</span></div><div class="line"><span class="comment">//fasle</span></div></pre></td></tr></table></figure>
+</li>
+<li><p>接下来再提一下Boolean类，装箱valueOf实现代码如下</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line"><span class="comment">/**</span></div><div class="line">     * Returns a &#123;<span class="doctag">@code</span> Boolean&#125; instance representing the specified</div><div class="line">     * &#123;<span class="doctag">@code</span> boolean&#125; value.  If the specified &#123;<span class="doctag">@code</span> boolean&#125; value</div><div class="line">     * is &#123;<span class="doctag">@code</span> true&#125;, this method returns &#123;<span class="doctag">@code</span> Boolean.TRUE&#125;;</div><div class="line">     * if it is &#123;<span class="doctag">@code</span> false&#125;, this method returns &#123;<span class="doctag">@code</span> Boolean.FALSE&#125;.</div><div class="line">     * If a new &#123;<span class="doctag">@code</span> Boolean&#125; instance is not required, this method</div><div class="line">     * should generally be used in preference to the constructor</div><div class="line">     * &#123;<span class="doctag">@link</span> #Boolean(boolean)&#125;, as this method is likely to yield</div><div class="line">     * significantly better space and time performance.</div><div class="line">     *</div><div class="line">     * <span class="doctag">@param</span>  b a boolean value.</div><div class="line">     * <span class="doctag">@return</span> a &#123;<span class="doctag">@code</span> Boolean&#125; instance representing &#123;<span class="doctag">@code</span> b&#125;.</div><div class="line">     * <span class="doctag">@since</span>  1.4</div><div class="line">     */</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Boolean <span class="title">valueOf</span><span class="params">(<span class="keyword">boolean</span> b)</span> </span>&#123;</div><div class="line">        <span class="comment">//TRUE、FALSE为两个内部定义的静态成员，这里直接返回两者其一</span></div><div class="line">        <span class="comment">// public static final Boolean TRUE = new Boolean(true);</span></div><div class="line">        <span class="comment">// public static final Boolean FALSE = new Boolean(false);</span></div><div class="line">        <span class="keyword">return</span> (b ? TRUE : FALSE);</div><div class="line">    &#125;</div></pre></td></tr></table></figure>
+<p>既然返回的是内部定义静态成员，只要值相同，那么就是同一个对象，因此下面代码就很好理解啦</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">StudyJava</span></span>&#123;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span></span>&#123;</div><div class="line">        Boolean i1 = <span class="keyword">false</span>;</div><div class="line">        Boolean i2 = <span class="keyword">false</span>;</div><div class="line">        Boolean i3 = <span class="keyword">true</span>;</div><div class="line">        Boolean i4 = <span class="keyword">true</span>;</div><div class="line">        System.out.println(i1==i2);</div><div class="line">        System.out.println(i3==i4);</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"><span class="comment">//输出结果</span></div><div class="line"><span class="comment">//true</span></div><div class="line"><span class="comment">//true</span></div></pre></td></tr></table></figure>
+</li>
+<li><p>稍微复杂一点呢？</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div></pre></td><td class="code"><pre><div class="line">  <span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">StudyJava</span></span>&#123;</div><div class="line">     <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span></span>&#123;</div><div class="line">        Integer i1 = <span class="number">1</span>;</div><div class="line">		Integer i2 = <span class="number">2</span>;</div><div class="line">		Integer i3 = <span class="number">200</span>;</div><div class="line">		<span class="keyword">int</span> i4 = i1 + <span class="number">1</span>;</div><div class="line">		<span class="keyword">int</span> i5 = <span class="number">200</span>;</div><div class="line">		Integer i6 = <span class="number">200</span>;</div><div class="line">		Long l1 = <span class="number">3L</span>;</div><div class="line">		Long l2 = <span class="number">2L</span>;</div><div class="line">		System.out.println(i4 == i2); - <span class="keyword">true</span></div><div class="line">		System.out.println(i2.equals(i4)); - <span class="keyword">true</span></div><div class="line">		System.out.println(i3 == i5); - <span class="keyword">true</span></div><div class="line">		System.out.println(i3.equals(i5)); - <span class="keyword">true</span></div><div class="line">		System.out.println(i3 == i6); - <span class="keyword">false</span></div><div class="line">		System.out.println(i3.equals(i6)); - <span class="keyword">true</span></div><div class="line">		<span class="comment">// System.out.println(l2==i2);//该行为错误代码，无法通过编译，类型不同</span></div><div class="line">		System.out.println(l1 == (i1 + i2)); - <span class="keyword">true</span><span class="comment">//可见其中进行了一些操作，使得两者可以比较</span></div><div class="line">		System.out.println(l2.equals(i1 + i2)); - <span class="keyword">false</span></div><div class="line">     &#125;</div><div class="line"> &#125;</div><div class="line"><span class="comment">//输出结果：</span></div><div class="line"><span class="comment">//true</span></div><div class="line"><span class="comment">//true</span></div><div class="line"><span class="comment">//true</span></div><div class="line"><span class="comment">//true</span></div><div class="line"><span class="comment">//false</span></div><div class="line"><span class="comment">//true</span></div><div class="line"><span class="comment">//true</span></div><div class="line"><span class="comment">//false</span></div></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>其中值得注意的，是最后两行代码：<br>“l1 == (i1 + i2)”其中包含了算术运算，会触发自动拆箱（算术运算需要自动拆箱，各自调用intValue方法得到基本类型），再进行自动装箱，最终他们进行了数值比较，因此可以正常编译；<br>而“l2.equals(i1 + i2)”则是，先触发“i1 + i2”的自动拆箱（算术运算需要自动拆箱，各自调用intValue方法得到基本类型），算术运算得到数值后，再进行数值对应类型的自动装箱（valueOf），得到Integer实例对象，最后再进行equals比较。</p>
+<h2 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h2><p>弄懂原理以及自动装、拆箱的时机，外加一点心细，就能较好地掌握本知识点啦，建议大家多动手实验，亲自验证一番，肯定有更多的收获的。</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+    <div>感谢您的阅读，希望文章对您有所帮助</div>
+    <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+      <span>赏</span>
+    </button>
+    <div id="QR" style="display: none;">
+      
+        <div id="wechat" style="display: inline-block">
+          <img id="wechat_qr" src="/images/wechatpay.png" alt="Goo WeChat Pay"/>
+          <p>微信打赏</p>
+        </div>
+      
+      
+        <div id="alipay" style="display: inline-block">
+          <img id="alipay_qr" src="/images/alipay.png" alt="Goo Alipay"/>
+          <p>支付宝打赏</p>
+        </div>
+      
+    </div>
+  </div>
+
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Java基础/" rel="tag">#Java基础</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/10/15/Java进阶 - 线程探索/" rel="next" title="Java进阶 - 线程探索">
+                <i class="fa fa-chevron-left"></i> Java进阶 - 线程探索
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/09/27/A星启发式寻路算法/" rel="prev" title="启发式搜索 - 有趣而神奇的 A* 算法">
+                启发式搜索 - 有趣而神奇的 A* 算法 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <div class="ds-share flat" data-thread-key="2016/10/09/Java自动装、拆箱认知/"
+     data-title="Java自动装、拆箱解析"
+     data-content=""
+     data-url="http://yoursite.com/2016/10/09/Java自动装、拆箱认知/">
+  <div class="ds-share-inline">
+    <ul  class="ds-share-icons-16">
+
+      <li data-toggle="ds-share-icons-more"><a class="ds-more" href="javascript:void(0);">分享到：</a></li>
+      <li><a class="ds-weibo" href="javascript:void(0);" data-service="weibo">微博</a></li>
+      <li><a class="ds-qzone" href="javascript:void(0);" data-service="qzone">QQ空间</a></li>
+      <li><a class="ds-qqt" href="javascript:void(0);" data-service="qqt">腾讯微博</a></li>
+      <li><a class="ds-wechat" href="javascript:void(0);" data-service="wechat">微信</a></li>
+
+    </ul>
+    <div class="ds-share-icons-more">
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2016/10/09/Java自动装、拆箱认知/"
+           data-title="Java自动装、拆箱解析" data-url="http://yoursite.com/2016/10/09/Java自动装、拆箱认知/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/icon.png"
+               alt="Goo" />
+          <p class="site-author-name" itemprop="name">Goo</p>
+          <p class="site-description motion-element" itemprop="description">沿路走到这里，尽量不要后退</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">15</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">12</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/Goo-Yao" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://www.jianshu.com/u/21d2303e41a6" target="_blank" title="简书">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  简书
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#认识自动装箱"><span class="nav-number">2.</span> <span class="nav-text">认识自动装箱</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#认识自动拆箱"><span class="nav-number">3.</span> <span class="nav-text">认识自动拆箱</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#装箱与拆箱如何实现？"><span class="nav-number">4.</span> <span class="nav-text">装箱与拆箱如何实现？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#需要注意的地方"><span class="nav-number">5.</span> <span class="nav-text">需要注意的地方</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#结语"><span class="nav-number">6.</span> <span class="nav-text">结语</span></a></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Goo</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.0.1"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"goo-tracks"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+    <script src="/lib/ua-parser-js/dist/ua-parser.min.js?v=0.7.9"></script>
+    <script src="/js/src/hook-duoshuo.js"></script>
+  
+
+
+
+
+
+
+  
+  
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length == 0) {
+       search_path = "search.xml";
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    function proceedsearch() {
+      $("body").append('<div class="popoverlay">').css('overflow', 'hidden');
+      $('.popup').toggle();
+
+    }
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+    'use strict';
+    $.ajax({
+        url: path,
+        dataType: "xml",
+        async: true,
+        success: function( xmlResponse ) {
+            // get the contents from search data
+            isfetched = true;
+            $('.popup').detach().appendTo('.header-inner');
+            var datas = $( "entry", xmlResponse ).map(function() {
+                return {
+                    title: $( "title", this ).text(),
+                    content: $("content",this).text(),
+                    url: $( "url" , this).text()
+                };
+            }).get();
+            var $input = document.getElementById(search_id);
+            var $resultContent = document.getElementById(content_id);
+            $input.addEventListener('input', function(){
+                var matchcounts = 0;
+                var str='<ul class=\"search-result-list\">';
+                var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                $resultContent.innerHTML = "";
+                if (this.value.trim().length > 1) {
+                // perform local searching
+                datas.forEach(function(data) {
+                    var isMatch = true;
+                    var content_index = [];
+                    var data_title = data.title.trim().toLowerCase();
+                    var data_content = data.content.trim().replace(/<[^>]+>/g,"").toLowerCase();
+                    var data_url = data.url;
+                    var index_title = -1;
+                    var index_content = -1;
+                    var first_occur = -1;
+                    // only match artiles with not empty titles and contents
+                    if(data_title != '' && data_content != '') {
+                        keywords.forEach(function(keyword, i) {
+                            index_title = data_title.indexOf(keyword);
+                            index_content = data_content.indexOf(keyword);
+                            if( index_title < 0 && index_content < 0 ){
+                                isMatch = false;
+                            } else {
+                                if (index_content < 0) {
+                                    index_content = 0;
+                                }
+                                if (i == 0) {
+                                    first_occur = index_content;
+                                }
+                            }
+                        });
+                    }
+                    // show search results
+                    if (isMatch) {
+                        matchcounts += 1;
+                        str += "<li><a href='"+ data_url +"' class='search-result-title'>"+ data_title +"</a>";
+                        var content = data.content.trim().replace(/<[^>]+>/g,"");
+                        if (first_occur >= 0) {
+                            // cut out 100 characters
+                            var start = first_occur - 20;
+                            var end = first_occur + 80;
+                            if(start < 0){
+                                start = 0;
+                            }
+                            if(start == 0){
+                                end = 50;
+                            }
+                            if(end > content.length){
+                                end = content.length;
+                            }
+                            var match_content = content.substring(start, end);
+                            // highlight all keywords
+                            keywords.forEach(function(keyword){
+                                var regS = new RegExp(keyword, "gi");
+                                match_content = match_content.replace(regS, "<b class=\"search-keyword\">"+keyword+"</b>");
+                            });
+
+                            str += "<p class=\"search-result\">" + match_content +"...</p>"
+                        }
+                        str += "</li>";
+                    }
+                })};
+                str += "</ul>";
+                if (matchcounts == 0) { str = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>' }
+                if (keywords == "") { str = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>' }
+                $resultContent.innerHTML = str;
+            });
+            proceedsearch();
+        }
+    });}
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched == false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+
+    });
+
+    $('.popup-btn-close').click(function(e){
+      $('.popup').hide();
+      $(".popoverlay").remove();
+      $('body').css('overflow', '');
+    });
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+  </script>
+
+
+  
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("BSwPKiNckzvJX4DpBuM5IM9Y-gzGzoHsz", "cRHrGaMhc9VOu2qDwkwSfrXx");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+</body>
+</html>

@@ -1,0 +1,1056 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Android,计算机网络," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Goo's Tracks" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="前言 简要回顾了 TCP/IP 分层模型及 IP、TCP、UDP 等主要协议，并且在此基础上联系 Android，做出一定的代码实现。 推荐书目：《深入理解Android网络编程》、《计算机网络 - 自顶向下方法》、《TCP/IP详解》">
+<meta name="keywords" content="Android,计算机网络">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Android网络编程 - TCP/IP协议实践">
+<meta property="og:url" content="http://yoursite.com/2016/11/07/Android网络编程 - TCP、UDP/index.html">
+<meta property="og:site_name" content="Goo's Tracks">
+<meta property="og:description" content="前言 简要回顾了 TCP/IP 分层模型及 IP、TCP、UDP 等主要协议，并且在此基础上联系 Android，做出一定的代码实现。 推荐书目：《深入理解Android网络编程》、《计算机网络 - 自顶向下方法》、《TCP/IP详解》">
+<meta property="og:updated_time" content="2017-01-12T04:58:22.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Android网络编程 - TCP/IP协议实践">
+<meta name="twitter:description" content="前言 简要回顾了 TCP/IP 分层模型及 IP、TCP、UDP 等主要协议，并且在此基础上联系 Android，做出一定的代码实现。 推荐书目：《深入理解Android网络编程》、《计算机网络 - 自顶向下方法》、《TCP/IP详解》">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2016/11/07/Android网络编程 - TCP、UDP/"/>
+
+  <title> Android网络编程 - TCP/IP协议实践 | Goo's Tracks </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//tajs.qq.com/stats?sId=58321747";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+  
+  
+    
+  
+  
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Goo's Tracks</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">记一段技术小足迹</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup">
+ <span class="search-icon fa fa-search"></span>
+ <input type="text" id="local-search-input">
+ <div id="local-search-result"></div>
+ <span class="popup-btn-close">close</span>
+</div>
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Android网络编程 - TCP/IP协议实践
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-11-07T23:22:06+08:00" content="2016-11-07">
+              2016-11-07
+            </time>
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2016/11/07/Android网络编程 - TCP、UDP/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/11/07/Android网络编程 - TCP、UDP/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             <span id="/2016/11/07/Android网络编程 - TCP、UDP/" class="leancloud_visitors" data-flag-title="Android网络编程 - TCP/IP协议实践">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><ul>
+<li>简要回顾了 TCP/IP 分层模型及 IP、TCP、UDP 等主要协议，并且在此基础上联系 Android，做出一定的代码实现。</li>
+<li>推荐书目：《深入理解Android网络编程》、《计算机网络 - 自顶向下方法》、《TCP/IP详解》<a id="more"></a><h2 id="网络协议概述"><a href="#网络协议概述" class="headerlink" title="网络协议概述"></a>网络协议概述</h2></li>
+<li>大多数网络都采用<strong>分层</strong>的体系结构，每一层都建立在它下层之上，同时向它的上一层提供服务。</li>
+<li>网络各层中存在许多协议，接收方与发送方同层协议必须一致。</li>
+<li>由于网络结点之间联系复杂，制定协议，通常把复杂成分分解成简单的成分，再将它们组合。<br>常用的复合技术 - “层级结构”：<ul>
+<li>结构中每一层都规定明确的任务以及接口标准</li>
+<li>将用户的应用程序作为最高层</li>
+<li>除了最高层，中间的每一层都向上提供服务，同时又是下一层的用户</li>
+<li>物理层座位最低层，使用最高层传来的参数，是提供服务的<strong>基础</strong></li>
+</ul>
+</li>
+<li>ISO提出的OSI/RM模型将计算机网络体系结构通讯协议划分为七层：物理层、数据链路层、网络层、传输层、；会话层、表示层、应用层（物数网传会表应）<br>低4层完成数据传输服务、高3层面向用户：<ul>
+<li>应用层 - 为应用提供访问网络服务接口</li>
+<li>表示层 - 提供数据/信息表示变换，让不同编码计算机可相互理解</li>
+<li>会话层 - 组织同步不同计算机的进程通信（对话），对话的建立与拆除；还提供在数据流中插入同步点机制，数据传输中断后，也不必从头开始，仅重传最近一个同步点以后的数据</li>
+<li>传输层 - 源主机与目的主机的连接与数据传输（端到端的数据传输）</li>
+<li>网络层 - 寻找合适的路由，使网络层数据传输单元（分组）可以正确找到目的站</li>
+<li>数据链路层 - 两个相邻结点间无差错地以帧为单位的数据传送</li>
+<li>物理层 - 物理介质传输，比特流传输</li>
+</ul>
+</li>
+</ul>
+<h2 id="IP、TCP-和-UDP-协议"><a href="#IP、TCP-和-UDP-协议" class="headerlink" title="IP、TCP 和 UDP 协议"></a>IP、TCP 和 UDP 协议</h2><h3 id="IP-协议"><a href="#IP-协议" class="headerlink" title="IP 协议"></a>IP 协议</h3><ul>
+<li>即互联网协议（Internet Protocol），用于报文交换网络的一种面向数据的协议，是TCP/IP协议中网络层的主要协议。</li>
+<li>作用：根据源主机和目的主机的地址传送数据。</li>
+<li>IP定义了寻址方法和数据报的封装结构。（IPv4、IPv6）</li>
+</ul>
+<h3 id="TCP-协议"><a href="#TCP-协议" class="headerlink" title="TCP 协议"></a>TCP 协议</h3><ul>
+<li>TCP/IP模型中，面向连接的、可靠的、基于字节流的传输层通信协议；</li>
+<li>传输层存在的意义：应用层之间需要可靠的，像管道一样的连接，但网络层不提供这样的流机制，只提供不可靠的包交换，因此需要传输层的协调。</li>
+<li>TCP协议作用：<ul>
+<li>TCP协议把应用层向传输层发送网间传输的、用8位字节表示的数据流分成适当长度的报文段（受数据链路层最大传输单元MTU限制）；</li>
+<li>把包传给网络层，由网络层将包传送给接收端实体的传输层；TCP为了不发生丢包，给每个包一个序号，同时序号保证了传送到接收端实体的包能按序接收。然后接收实体成功收到包后回复相应的ACK确认；</li>
+<li>如果发送端实体在合理的往返时延（RTT）内未收到确认，那么对应的数据包就会被认为丢失，将被重传；</li>
+<li>TCP协议用一个校验和（Checksum）函数来检验数据是否错误，发送与接收时候都需要计算校验和。</li>
+</ul>
+</li>
+</ul>
+<h3 id="UDP-协议"><a href="#UDP-协议" class="headerlink" title="UDP 协议"></a>UDP 协议</h3><ul>
+<li>TCP/IP模型中面向无连接的传输层协议，提供面向事务的简单不可靠信息传输服务。</li>
+<li>UDP不提供对IP协议的可靠机制、流控制以及错误恢复功能等，在数据传输之前不需要简历连接。</li>
+<li>由于UDP较简单，因此比TCP负载消耗少。</li>
+</ul>
+<h2 id="Android-中的运用？"><a href="#Android-中的运用？" class="headerlink" title="Android 中的运用？"></a>Android 中的运用？</h2><p>TCP、UDP报文结构中，每段报文除了数据本身，还包含了许多其他重要信息，而且长度有限，传输时候需要拆解，到达目的地之后再组合还原，如果包有丢失或者损坏还需要重传，乱序发送的包还需要重新排序。<br>处理传输过程中的一系列逻辑，需要大量可靠的代码完成。于是人们他用过 Socket 对网络纠错、包大小、包重传等进行封装。</p>
+<h3 id="Socket-基础"><a href="#Socket-基础" class="headerlink" title="Socket 基础"></a>Socket 基础</h3><ul>
+<li>从字面意思来看，“Socket”通常被称为“套接字”。相信很多人都不理解“套接字”是什么意思，包括我，也是疑惑了很久。</li>
+<li>Socket 作用距离：一台服务器可能会提供多种服务，每种服务对应一个 Socket，客户也持有一个 Socket，客户需要哪种服务，就需要找到对应的Socket来进行通信。</li>
+<li>Socket 是应用层与TCP/IP协议族通信的中间软件抽象层，它本质是一组接口。Socket 接口将复杂的TCP/IP协议族隐藏，对用户而言，一组简单的接口就是全部，让 Socket 组织数据，以符合指定协议。</li>
+<li>应用程序常通过 Socket 向网络发送/响应请求</li>
+<li>Socket <strong>基本操作</strong>：1、连接远程机器；2、发送数据；3、接收数据；4、关闭连接；5、绑定端口；6、监听到达数据；7、在绑定端口上接收来自远程及其的连接</li>
+<li>服务器要和客户端通信，两者需要实例化一个Socket。服务器和客户端的Socket不一样，客户端可以实现连接远程机器、发送数据、接收数据、关闭连接等，服务器还需要实现绑定端口、监听到达数据、接收来自远程机器的连接。Android 中，java.net里面提供的两个类：ServerSocket、Socket，前者用于实例化服务器 Socket，后者用于实例化客户端的 Socket。</li>
+<li>Socket 的两种类型：TCP、UDP<br>TCP 与 UDP 在传输过程中的具体实现方式不同，两者都接收传输协议数据包并将其内容向前传递到应用层。<br>TCP 把消息分解成数据包，并在接收端以正确的顺序将他们重新装配起来；TCP 还处理丢包的重传请求，位于上层的应用层要处理的事情就相对较少。<br>UDP 不提供装配与处理重传请求，只是向前传递信息包，位于上层的应用必须确保消息是完整的，并且是以正确的顺序装配的。</li>
+</ul>
+<h3 id="使用-TCP-通信与-UDP-通信"><a href="#使用-TCP-通信与-UDP-通信" class="headerlink" title="使用 TCP 通信与 UDP 通信"></a>使用 TCP 通信与 UDP 通信</h3><ul>
+<li><p>TCP:保证可靠性上，采用超时重传和捎带确认机制；流量控制上，采用滑动窗口协议（协议规定，对于窗口内，未经确认的分组需要重传）；拥塞机制上，采用慢启动算法。<br>场景应用：当对网络通讯质量有要求的时候，比如：整个数据要准确无误的传递给对方，这往往用于一些要求可靠的应用，比如HTTP、HTTPS、FTP等传输文件的协议，POP、SMTP等邮件传输的协议。</p>
+<ul>
+<li><p>TCP 服务器端工作流程：</p>
+<ol>
+<li>SerserSocket(int port) 创建 ServerSocket，并将其绑定到指定端口</li>
+<li>调用 accept()，监听连接请求，如果客户端请求连接，则接受并返回通信 Socket</li>
+<li>调用 Socket 类的 getOutputStream()、getInputStream() 获取输出和输出流，开始网络数据发送与接收</li>
+<li>通信结束，关闭通信套接字</li>
+</ol>
+</li>
+<li><p>TCP 客户端工作流程：</p>
+<ol>
+<li>调用 Socket() 创建一个流套接字，并且连接至服务器端</li>
+<li>调用 Socket 类中的 getOutputStream()、getInputStream() 方法获取输出和输入流，开始网络数据的发送与接收</li>
+<li>通信结束，关闭通信套接字</li>
+</ol>
+</li>
+</ul>
+</li>
+<li><p>UDP:有不提供数据报分组、组装和不能对数据包排序的缺点，无法得知其是否安全完整到达。UDP 主要用来支持那些需要在计算机之间传输数据的网络应用，对网络通讯质量要求不高，要求较快的通信速度时使用。<br>主要作用：将网络数据流量压缩成数据报的形式。（典型数据报：一个二进制的传输单位）</p>
+<ul>
+<li><p>UDP 服务器端工作流程：</p>
+<ol>
+<li>调用 DatagramSocket(int port) 创建一个数据报套接字，并绑定到指定端口</li>
+<li>调用 DatagramPacket(byte[]buf,int length)，建立字节数组以接收 UDP 包</li>
+<li>调用 DatagramSocket 类的receiver(),接受 UDP 包</li>
+<li>通信结束，关闭数据报套接字</li>
+</ol>
+</li>
+<li><p>UDP 客户端工作流程：</p>
+<ol>
+<li>调用 DatagramSocket() 创建一个数据报套接字</li>
+<li>调用 DatagramPacket(byte[]buf,int offset,int length,InetAddress address,int  port)，建立要发送的 UDP 包</li>
+<li>调用 DatagramSocket 类的 send() 发送 UDP 包</li>
+<li>通信结束，关闭数据报套接字</li>
+</ol>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="简单的通信-Demo"><a href="#简单的通信-Demo" class="headerlink" title="简单的通信 Demo"></a>简单的通信 Demo</h3><p>实现了服务器端与客户端的交互（客户端发送消息至服务器端）；<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div><div class="line">97</div><div class="line">98</div><div class="line">99</div><div class="line">100</div><div class="line">101</div><div class="line">102</div><div class="line">103</div><div class="line">104</div><div class="line">105</div><div class="line">106</div><div class="line">107</div><div class="line">108</div><div class="line">109</div><div class="line">110</div><div class="line">111</div></pre></td><td class="code"><pre><div class="line">ChatServer.java</div><div class="line">public class ChatServer extends Thread &#123;</div><div class="line">    /**</div><div class="line">     * 服务器Socket对象</div><div class="line">     */</div><div class="line">    private ServerSocket server = null;</div><div class="line"></div><div class="line">    /**</div><div class="line">     * 端口</div><div class="line">     */</div><div class="line">    public static final int PORT = 5000;</div><div class="line"></div><div class="line">    /**</div><div class="line">     * 读写Buffer</div><div class="line">     */</div><div class="line">    private BufferedReader reader;</div><div class="line">    private BufferedWriter writer;</div><div class="line"></div><div class="line">    /**</div><div class="line">     * 主线程Handler</div><div class="line">     */</div><div class="line">    private final Handler handler;</div><div class="line"></div><div class="line">    /**</div><div class="line">     * 标识</div><div class="line">     */</div><div class="line">    public static final int SERVER_TAG = 12345;</div><div class="line">    public static final String MSG_KEY = &quot;server&quot;;</div><div class="line"></div><div class="line">    public ChatServer(Handler handler) throws IOException &#123;</div><div class="line">        this.handler = handler;</div><div class="line">        createSocket();</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    /**</div><div class="line">     * 创建ServerSocket</div><div class="line">     */</div><div class="line">    private void createSocket() throws IOException &#123;</div><div class="line">        server = new ServerSocket(PORT, 100);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    @Override</div><div class="line">    public void run() &#123;</div><div class="line">        Socket client;</div><div class="line">        String text;</div><div class="line">        try &#123;</div><div class="line">            //死循环监听</div><div class="line">            while (true) &#123;</div><div class="line">                //响应客户端连接请求</div><div class="line">                client = responseSocket();</div><div class="line">                while (true) &#123;</div><div class="line">                    //接收客户端发送的消息</div><div class="line">                    text = receiveMsg(client);</div><div class="line">                    //显示消息结果</div><div class="line">                    makeTips(text);</div><div class="line">                    break;</div><div class="line">                &#125;</div><div class="line">                closeSocket(client);</div><div class="line">            &#125;</div><div class="line">        &#125; catch (IOException e) &#123;</div><div class="line">            e.printStackTrace();</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    /**</div><div class="line">     * 关闭连接及缓存</div><div class="line">     *</div><div class="line">     * @param client</div><div class="line">     */</div><div class="line">    private void closeSocket(Socket client) throws IOException &#123;</div><div class="line">        reader.close();</div><div class="line">//        writer.close();</div><div class="line">        client.close();</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    /**</div><div class="line">     * 发送消息到客户端</div><div class="line">     *</div><div class="line">     * @param client</div><div class="line">     * @param text</div><div class="line">     */</div><div class="line">    private void sendMsg(Socket client, String text) throws IOException &#123;</div><div class="line">        writer = new BufferedWriter(new OutputStreamWriter(client.getOutputStream()));</div><div class="line">        writer.write(text + &quot;\n&quot;);</div><div class="line">        writer.flush();//发送</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    /**</div><div class="line">     * 提示</div><div class="line">     *</div><div class="line">     * @param text</div><div class="line">     */</div><div class="line">    private void makeTips(String text) &#123;</div><div class="line">        Message msg = new Message();</div><div class="line">        Bundle bundle = new Bundle();</div><div class="line">        bundle.putString(ChatServer.MSG_KEY, text);</div><div class="line">        msg.setData(bundle);</div><div class="line">        msg.what = SERVER_TAG;</div><div class="line">        handler.sendMessage(msg);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    private String receiveMsg(Socket client) throws IOException &#123;</div><div class="line">        reader = new BufferedReader(new InputStreamReader(client.getInputStream()));</div><div class="line">        String result = reader.readLine();</div><div class="line">        return &quot;服务器收到:&quot; + result;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    private Socket responseSocket() throws IOException &#123;</div><div class="line">        return server.accept();</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line">ChatClient.java</div><div class="line">public class ChatClient &#123;</div><div class="line">    private Socket socket = null;</div><div class="line"></div><div class="line">    public ChatClient(String host, int port) throws IOException &#123;</div><div class="line">        socket = new Socket(host, port);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    /**</div><div class="line">     * 向服务器端发送消息</div><div class="line">     *</div><div class="line">     * @param msg</div><div class="line">     * @throws IOException</div><div class="line">     */</div><div class="line">    public void sendMsg(String msg) throws IOException &#123;</div><div class="line">        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));</div><div class="line">        writer.write(msg.replace(&quot;\n&quot;, &quot;&quot;) + &quot;\n&quot;);</div><div class="line">        writer.flush();</div><div class="line">    &#125;</div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div></pre></td><td class="code"><pre><div class="line">MainActivity.java</div><div class="line">public class MainActivity extends AppCompatActivity &#123;</div><div class="line"></div><div class="line">    Handler handler = new Handler() &#123;</div><div class="line">        @Override</div><div class="line">        public void handleMessage(Message msg) &#123;</div><div class="line">            switch (msg.what) &#123;</div><div class="line">                case ChatServer.SERVER_TAG:</div><div class="line">                    Bundle bundle = msg.getData();</div><div class="line">                    Toast.makeText(MainActivity.this, bundle.getString(ChatServer.MSG_KEY), Toast.LENGTH_LONG).show();</div><div class="line">                    break;</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">    &#125;;</div><div class="line"></div><div class="line"></div><div class="line">    @Override</div><div class="line">    protected void onCreate(Bundle savedInstanceState) &#123;</div><div class="line">        super.onCreate(savedInstanceState);</div><div class="line">        getWindow().addFlags(WindowManager.LayoutParams.FLAG_SECURE);</div><div class="line">        setContentView(R.layout.activity_main);</div><div class="line">        launchServer();</div><div class="line">        launchClient();</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    private void launchServer() &#123;</div><div class="line">        //启动服务器端</div><div class="line">        try &#123;</div><div class="line">            ChatServer</div><div class="line">                    chatServer = new ChatServer(handler);</div><div class="line">            chatServer.start();</div><div class="line">        &#125; catch (IOException e) &#123;</div><div class="line">            e.printStackTrace();</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    /**</div><div class="line">     * 启动客户端</div><div class="line">     */</div><div class="line">    private void launchClient() &#123;</div><div class="line">        new Thread(new Runnable() &#123;</div><div class="line">            @Override</div><div class="line">            public void run() &#123;</div><div class="line">                ChatClient client = null;</div><div class="line">                try &#123;</div><div class="line">                    client = new ChatClient(null, ChatServer.PORT);</div><div class="line">                    client.sendMsg(&quot;客户端给服务器端，发了一条信息&quot;);</div><div class="line">                &#125; catch (IOException e) &#123;</div><div class="line">                    e.printStackTrace();</div><div class="line">                &#125;</div><div class="line">            &#125;</div><div class="line">        &#125;).start();</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+    <div>感谢您的阅读，希望文章对您有所帮助</div>
+    <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+      <span>赏</span>
+    </button>
+    <div id="QR" style="display: none;">
+      
+        <div id="wechat" style="display: inline-block">
+          <img id="wechat_qr" src="/images/wechatpay.png" alt="Goo WeChat Pay"/>
+          <p>微信打赏</p>
+        </div>
+      
+      
+        <div id="alipay" style="display: inline-block">
+          <img id="alipay_qr" src="/images/alipay.png" alt="Goo Alipay"/>
+          <p>支付宝打赏</p>
+        </div>
+      
+    </div>
+  </div>
+
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Android/" rel="tag">#Android</a>
+          
+            <a href="/tags/计算机网络/" rel="tag">#计算机网络</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/11/19/Mastering The Android Touch System/" rel="next" title="Android 触控事件解析">
+                <i class="fa fa-chevron-left"></i> Android 触控事件解析
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/10/23/View绘制原理/" rel="prev" title="Android进阶 - View 工作原理探究">
+                Android进阶 - View 工作原理探究 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <div class="ds-share flat" data-thread-key="2016/11/07/Android网络编程 - TCP、UDP/"
+     data-title="Android网络编程 - TCP/IP协议实践"
+     data-content=""
+     data-url="http://yoursite.com/2016/11/07/Android网络编程 - TCP、UDP/">
+  <div class="ds-share-inline">
+    <ul  class="ds-share-icons-16">
+
+      <li data-toggle="ds-share-icons-more"><a class="ds-more" href="javascript:void(0);">分享到：</a></li>
+      <li><a class="ds-weibo" href="javascript:void(0);" data-service="weibo">微博</a></li>
+      <li><a class="ds-qzone" href="javascript:void(0);" data-service="qzone">QQ空间</a></li>
+      <li><a class="ds-qqt" href="javascript:void(0);" data-service="qqt">腾讯微博</a></li>
+      <li><a class="ds-wechat" href="javascript:void(0);" data-service="wechat">微信</a></li>
+
+    </ul>
+    <div class="ds-share-icons-more">
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2016/11/07/Android网络编程 - TCP、UDP/"
+           data-title="Android网络编程 - TCP/IP协议实践" data-url="http://yoursite.com/2016/11/07/Android网络编程 - TCP、UDP/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/icon.png"
+               alt="Goo" />
+          <p class="site-author-name" itemprop="name">Goo</p>
+          <p class="site-description motion-element" itemprop="description">沿路走到这里，尽量不要后退</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">15</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">12</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/Goo-Yao" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://www.jianshu.com/u/21d2303e41a6" target="_blank" title="简书">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  简书
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#网络协议概述"><span class="nav-number">2.</span> <span class="nav-text">网络协议概述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#IP、TCP-和-UDP-协议"><span class="nav-number">3.</span> <span class="nav-text">IP、TCP 和 UDP 协议</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#IP-协议"><span class="nav-number">3.1.</span> <span class="nav-text">IP 协议</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#TCP-协议"><span class="nav-number">3.2.</span> <span class="nav-text">TCP 协议</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#UDP-协议"><span class="nav-number">3.3.</span> <span class="nav-text">UDP 协议</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Android-中的运用？"><span class="nav-number">4.</span> <span class="nav-text">Android 中的运用？</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Socket-基础"><span class="nav-number">4.1.</span> <span class="nav-text">Socket 基础</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#使用-TCP-通信与-UDP-通信"><span class="nav-number">4.2.</span> <span class="nav-text">使用 TCP 通信与 UDP 通信</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#简单的通信-Demo"><span class="nav-number">4.3.</span> <span class="nav-text">简单的通信 Demo</span></a></li></ol></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Goo</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.0.1"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"goo-tracks"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+    <script src="/lib/ua-parser-js/dist/ua-parser.min.js?v=0.7.9"></script>
+    <script src="/js/src/hook-duoshuo.js"></script>
+  
+
+
+
+
+
+
+  
+  
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length == 0) {
+       search_path = "search.xml";
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    function proceedsearch() {
+      $("body").append('<div class="popoverlay">').css('overflow', 'hidden');
+      $('.popup').toggle();
+
+    }
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+    'use strict';
+    $.ajax({
+        url: path,
+        dataType: "xml",
+        async: true,
+        success: function( xmlResponse ) {
+            // get the contents from search data
+            isfetched = true;
+            $('.popup').detach().appendTo('.header-inner');
+            var datas = $( "entry", xmlResponse ).map(function() {
+                return {
+                    title: $( "title", this ).text(),
+                    content: $("content",this).text(),
+                    url: $( "url" , this).text()
+                };
+            }).get();
+            var $input = document.getElementById(search_id);
+            var $resultContent = document.getElementById(content_id);
+            $input.addEventListener('input', function(){
+                var matchcounts = 0;
+                var str='<ul class=\"search-result-list\">';
+                var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                $resultContent.innerHTML = "";
+                if (this.value.trim().length > 1) {
+                // perform local searching
+                datas.forEach(function(data) {
+                    var isMatch = true;
+                    var content_index = [];
+                    var data_title = data.title.trim().toLowerCase();
+                    var data_content = data.content.trim().replace(/<[^>]+>/g,"").toLowerCase();
+                    var data_url = data.url;
+                    var index_title = -1;
+                    var index_content = -1;
+                    var first_occur = -1;
+                    // only match artiles with not empty titles and contents
+                    if(data_title != '' && data_content != '') {
+                        keywords.forEach(function(keyword, i) {
+                            index_title = data_title.indexOf(keyword);
+                            index_content = data_content.indexOf(keyword);
+                            if( index_title < 0 && index_content < 0 ){
+                                isMatch = false;
+                            } else {
+                                if (index_content < 0) {
+                                    index_content = 0;
+                                }
+                                if (i == 0) {
+                                    first_occur = index_content;
+                                }
+                            }
+                        });
+                    }
+                    // show search results
+                    if (isMatch) {
+                        matchcounts += 1;
+                        str += "<li><a href='"+ data_url +"' class='search-result-title'>"+ data_title +"</a>";
+                        var content = data.content.trim().replace(/<[^>]+>/g,"");
+                        if (first_occur >= 0) {
+                            // cut out 100 characters
+                            var start = first_occur - 20;
+                            var end = first_occur + 80;
+                            if(start < 0){
+                                start = 0;
+                            }
+                            if(start == 0){
+                                end = 50;
+                            }
+                            if(end > content.length){
+                                end = content.length;
+                            }
+                            var match_content = content.substring(start, end);
+                            // highlight all keywords
+                            keywords.forEach(function(keyword){
+                                var regS = new RegExp(keyword, "gi");
+                                match_content = match_content.replace(regS, "<b class=\"search-keyword\">"+keyword+"</b>");
+                            });
+
+                            str += "<p class=\"search-result\">" + match_content +"...</p>"
+                        }
+                        str += "</li>";
+                    }
+                })};
+                str += "</ul>";
+                if (matchcounts == 0) { str = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>' }
+                if (keywords == "") { str = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>' }
+                $resultContent.innerHTML = str;
+            });
+            proceedsearch();
+        }
+    });}
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched == false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+
+    });
+
+    $('.popup-btn-close').click(function(e){
+      $('.popup').hide();
+      $(".popoverlay").remove();
+      $('body').css('overflow', '');
+    });
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+  </script>
+
+
+  
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("BSwPKiNckzvJX4DpBuM5IM9Y-gzGzoHsz", "cRHrGaMhc9VOu2qDwkwSfrXx");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+</body>
+</html>

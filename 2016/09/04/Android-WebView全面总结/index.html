@@ -1,0 +1,1080 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Android widget," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Goo's Tracks" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="知识点汇总： WebView概述 捕获url方式 js交互 内存泄漏 WebView 缓存机制">
+<meta name="keywords" content="Android widget">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Android WebView全面总结">
+<meta property="og:url" content="http://yoursite.com/2016/09/04/Android-WebView全面总结/index.html">
+<meta property="og:site_name" content="Goo's Tracks">
+<meta property="og:description" content="知识点汇总： WebView概述 捕获url方式 js交互 内存泄漏 WebView 缓存机制">
+<meta property="og:updated_time" content="2016-11-07T15:27:34.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Android WebView全面总结">
+<meta name="twitter:description" content="知识点汇总： WebView概述 捕获url方式 js交互 内存泄漏 WebView 缓存机制">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2016/09/04/Android-WebView全面总结/"/>
+
+  <title> Android WebView全面总结 | Goo's Tracks </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//tajs.qq.com/stats?sId=58321747";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+  
+  
+    
+  
+  
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Goo's Tracks</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">记一段技术小足迹</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup">
+ <span class="search-icon fa fa-search"></span>
+ <input type="text" id="local-search-input">
+ <div id="local-search-result"></div>
+ <span class="popup-btn-close">close</span>
+</div>
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Android WebView全面总结
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-09-04T20:11:06+08:00" content="2016-09-04">
+              2016-09-04
+            </time>
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2016/09/04/Android-WebView全面总结/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/09/04/Android-WebView全面总结/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             <span id="/2016/09/04/Android-WebView全面总结/" class="leancloud_visitors" data-flag-title="Android WebView全面总结">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="知识点汇总："><a href="#知识点汇总：" class="headerlink" title="知识点汇总："></a>知识点汇总：</h2><ul>
+<li>WebView概述</li>
+<li>捕获url方式</li>
+<li>js交互</li>
+<li>内存泄漏</li>
+<li>WebView 缓存机制<a id="more"></a>
+</li>
+</ul>
+<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>结合H5页面开发的App日渐多了起来，而WebView正是Html与Native的纽带，今天就借着一个新的项目需求顺便做一下WebView的知识总结，如有错漏，恳请大家指点指点。（项目需求：将适配好的网页打包成App，并能够调用系统摄像头进行二维码识别、拍照或是选择本地图片上传、获取用户位置等）</p>
+<hr>
+<h2 id="WebView-小科普"><a href="#WebView-小科普" class="headerlink" title="WebView 小科普"></a><strong>WebView 小科普</strong></h2><ul>
+<li><p>官方文档<br><strong>Class Overview</strong><br>A View that displays web pages. This class is the basis upon which you can roll<br>your own web browser or simply display some online content within your Activity.<br>It uses the WebKit rendering engine to display web pages and includes methods<br>to navigate forward and backward through a history, zoom in and out, perform text searches and more.<br>理解：WebView是一个显示网页的一个View，基本应用于浏览器或是Activity中网页的简单显示。使用了WebKit渲染引擎实现一系列神奇的功能。</p>
+<p><strong>Basic usage</strong><br>By default, a WebView provides no browser-like widgets, does not enable JavaScript and web page errors are ignored.<br>理解：默认情况，WebView并没有开启对JavaScript的支持，仅起展示作用，因此，我们需要进一步配置WebView才能满足各种各样的需求。</p>
+</li>
+</ul>
+<h3 id="WebView基本使用"><a href="#WebView基本使用" class="headerlink" title="WebView基本使用"></a><strong>WebView基本使用</strong></h3><ul>
+<li>在 AndroidManifest.xml 中添加联网权限（如果webView需要联网的话，仅加载本地html、js文件则不需要添加联网权限）</li>
+</ul>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"> <span class="tag">&lt;<span class="name">uses-permission</span> <span class="attr">android:name</span>=<span class="string">"android.permission.INTERNET"</span> /&gt;</span></div><div class="line"><span class="comment">&lt;!--另外附上一些可能会用到的权限：--&gt;</span></div><div class="line"><span class="tag">&lt;<span class="name">uses-permission</span> <span class="attr">android:name</span>=<span class="string">"android.permission.ACCESS_NETWORK_STATE"</span> /&gt;</span></div><div class="line"><span class="comment">&lt;!--获取网络状态权限（情景：WebView联网前，应检查当前网络状态）--&gt;</span></div><div class="line"><span class="tag">&lt;<span class="name">uses-permission</span> <span class="attr">android:name</span>=<span class="string">"android.permission.ACCESS_COARSE_LOCATION"</span>/&gt;</span></div><div class="line"><span class="comment">&lt;!--通过WiFi或移动基站的方式获取用户错略的经纬度信息--&gt;</span></div><div class="line"><span class="tag">&lt;<span class="name">uses-permission</span> <span class="attr">android:name</span>=<span class="string">"android.permission.ACCESS_FINE_LOCATION"</span> /&gt;</span></div><div class="line"><span class="comment">&lt;!--通过GPS芯片接收卫星的定位信息权限（情景：结合HTML5使用Geolocation API获取位置时）--&gt;</span></div><div class="line"><span class="tag">&lt;<span class="name">uses-permission</span> <span class="attr">android:name</span>=<span class="string">"android.permission.WRITE_EXTERNAL_STORAGE"</span> /&gt;</span></div><div class="line"><span class="comment">&lt;!--读写存储权限（情景：拍照/选择图片，涉及图片读取、编辑、压缩等功能时）--&gt;</span></div></pre></td></tr></table></figure>
+<ul>
+<li>一些 WebSettings 常用配置（其实还有许多没有列出来，大家可以利用IDE，点击进入方法，查看源码继续发掘）</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line">WebSettings  mWebSetting = mWebView.getSettings();  <span class="comment">//获取WebSetting</span></div><div class="line">setJavaScriptEnabled(<span class="keyword">true</span>);<span class="comment">//让WebView支持JavaScript</span></div><div class="line">setDomStorageEnabled(<span class="keyword">true</span>);<span class="comment">//启用H5 DOM API （默认false）</span></div><div class="line">setDatabaseEnabled(<span class="keyword">true</span>);<span class="comment">//启用数据库api（默认false）可结合 setDatabasePath 设置路径</span></div><div class="line">setCacheMode(WebSettings.LOAD_DEFAULT)<span class="comment">//设置缓存模式</span></div><div class="line">setAppCacheEnabled(<span class="keyword">true</span>);<span class="comment">//启用应用缓存（默认false）可结合 setAppCachePath 设置缓存路径</span></div><div class="line">setAppCacheMaxSize()<span class="comment">//已过时，高版本API上，系统会自行分配</span></div><div class="line">setPluginsEnabled(<span class="keyword">true</span>);  <span class="comment">//设置插件支持</span></div><div class="line">setRenderPriority(RenderPriority.HIGH);  <span class="comment">//提高渲染的优先级</span></div><div class="line">setUseWideViewPort(<span class="keyword">true</span>);  <span class="comment">//将图片调整到适合webview的大小</span></div><div class="line">setLoadWithOverviewMode(<span class="keyword">true</span>); <span class="comment">// 缩放至屏幕的大小</span></div><div class="line">setSupportZoom(<span class="keyword">true</span>);  <span class="comment">//支持缩放，默认为true</span></div><div class="line">setBuiltInZoomControls(<span class="keyword">true</span>); <span class="comment">//设置内置的缩放控件（若SupportZoom为false，该设置项无效）</span></div><div class="line">setDisplayZoomControls(<span class="keyword">false</span>); <span class="comment">//隐藏原生的缩放控件</span></div><div class="line">setLayoutAlgorithm(LayoutAlgorithm.SINGLE_COLUMN); <span class="comment">//支持内容重新布局</span></div><div class="line">supportMultipleWindows();  <span class="comment">//支持多窗口</span></div><div class="line">setCacheMode(WebSettings.LOAD_CACHE_ELSE_NETWORK);  <span class="comment">//关闭webview中缓存</span></div><div class="line">setAllowFileAccess(<span class="keyword">true</span>);  <span class="comment">//设置可以访问文件</span></div><div class="line">setNeedInitialFocus(<span class="keyword">true</span>); <span class="comment">//当webview调用requestFocus时为webview设置节点</span></div><div class="line">setJavaScriptCanOpenWindowsAutomatically(<span class="keyword">true</span>); <span class="comment">//支持通过JS打开新窗口</span></div><div class="line">setLoadsImagesAutomatically(<span class="keyword">true</span>);  <span class="comment">//自动加载图片</span></div><div class="line">setDefaultTextEncodingName(<span class="string">"utf-8"</span>);<span class="comment">//设置编码格式</span></div></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//实际应用中，一般配置即可满足基本需求</span></div><div class="line">mWebSettings.setSupportZoom(<span class="keyword">true</span>);</div><div class="line">mWebSettings.setJavaScriptEnabled(<span class="keyword">true</span>);</div><div class="line">mWebSettings.setLoadWithOverviewMode(<span class="keyword">true</span>);</div><div class="line">mWebSettings.setUseWideViewPort(<span class="keyword">true</span>);</div><div class="line">mWebSettings.setDefaultTextEncodingName(<span class="string">"utf-8"</span>);</div><div class="line">mWebSettings.setLoadsImagesAutomatically(<span class="keyword">true</span>);</div></pre></td></tr></table></figure>
+<ul>
+<li>加载网页、本地、assets中的html页面基本方式</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//网页</span></div><div class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> String URL_NET = <span class="string">"http://www.google.com"</span>; <span class="comment">// 记得加 "http://"</span></div><div class="line"><span class="comment">//assets 中的 html 资源</span></div><div class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> String URL_LOCAL =<span class="string">"file:///android_asset/xxx.html路径"</span>; </div><div class="line"><span class="comment">//SD 卡中的 html 资源</span></div><div class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> String URL_SD_CARD =<span class="string">"content://com.android.htmlfileprovider/mnt/sdcard/xxx.html"</span>; </div><div class="line">mWebView.loadUrl(URL_NET);</div><div class="line">mWebView.loadUrl(URL_LOCAL);</div><div class="line">mWebView.loadUrl(URL_SD_CARD);</div></pre></td></tr></table></figure>
+<h3 id="WebViewClient-与-WebChromeClient"><a href="#WebViewClient-与-WebChromeClient" class="headerlink" title="WebViewClient 与 WebChromeClient"></a><strong>WebViewClient 与 WebChromeClient</strong></h3><p><a href="http://blog.csdn.net/linghu_java/article/details/6927439" target="_blank" rel="external">WebViewClient与WebChromeClient的区别</a></p>
+<ul>
+<li>WebViewClient 用于帮助WebView处理各种通知、请求事件</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>WebViewClient 常用方法</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>shouldOverrideUrlLoading</td>
+<td>加载时调用，可捕获url</td>
+</tr>
+<tr>
+<td>onPageStart</td>
+<td>开始加载时调用（可以设置加载中提示）</td>
+</tr>
+<tr>
+<td>onPageFinish</td>
+<td>加载完成时调用（无法打开也是完成的一种，在这里取消加载提示显示）</td>
+</tr>
+<tr>
+<td>onReceiveError</td>
+<td>接收到错误信息时调用（通常在该方法中处理404之类的加载错误，但这里<strong>有点坑</strong>，API23中，在低于API23的设备上运行时，该方法失效，不调用<strong>我猜原因可能是：</strong> 新版的onReceiveError不再接收网页连接的错误，而是接收WebView自身运行出现的错误，另外有onReceivedHttpError方法来接收（然而在我的测试中，该方法还是未能接收到404错误）。可暂时用API23过时的方法<em>“onReceivedError(WebView view, int errorCode, String description, String failingUrl)”</em>替代新版本中的<em>“onReceivedError(WebView view, WebResourceRequest request, WebResourceError error)”</em>；）<a href="http://stackoverflow.com/questions/32769505/webviewclient-onreceivederror-deprecated-new-version-does-not-detect-all-errors" target="_blank" rel="external">传送门：stackoverflow Q&amp;A</a></td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>WebChromeClient 用于辅助 WebView处理Javascript的对话框，网站图标、Title、位置、加载进度等信息</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>WebChromeClient 常用方法</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>onProgressChanged</td>
+<td>加载进度</td>
+</tr>
+<tr>
+<td>onReceivedTitle、onReceivedIcon</td>
+<td>获取网页标题、图标</td>
+</tr>
+<tr>
+<td>onGeolocationPermissionsShowPrompt</td>
+<td>页面发起GEO定位请求时调用</td>
+</tr>
+<tr>
+<td>…</td>
+<td>WebChromeClient源码中对各种方法都有详细解析，需要用到的时候查一下即可</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>两者用法都是简单的set方法<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">mWebView.setWebViewClient(mWebViewClient);</div><div class="line">mWebView.setChromeClient(mWebChromeClient);</div></pre></td></tr></table></figure>
+</li>
+</ul>
+<h3 id="WebView与Javascript交互"><a href="#WebView与Javascript交互" class="headerlink" title="WebView与Javascript交互"></a><strong>WebView与Javascript交互</strong></h3><ul>
+<li>前提条件：setJavaScriptEnabled(true)</li>
+<li>调用js方法<br> <code>mWebView.loadUrl(&quot;javascript: 方法名(&#39;&quot;+参数+&quot;&#39;)&quot;);</code></li>
+<li>js调用android中方法<br>4.2及之前版本该方法存在漏洞：<a href="http://blog.csdn.net/leehong2005/article/details/11808557" target="_blank" rel="external">Android WebView的Js对象注入漏洞解决方案</a>、<a href="http://www.jianshu.com/p/93cea79a2443" target="_blank" rel="external">JS与WebView交互存在的一些问题</a><blockquote>
+<p>引用”漏洞描述”：<br>1，WebView添加了JavaScript对象，并且当前应用具有读写SDCard的权限，也就是：android.permission.WRITE_EXTERNAL_STORAGE<br>2，JS中可以遍历window对象，找到存在“getClass”方法的对象的对象，然后再通过反射的机制，得到Runtime对象，然后调用静态方法来执行一些命令，比如访问文件的命令.<br>3，再从执行命令后返回的输入流中得到字符串，就可以得到文件名的信息了。然后想干什么就干什么，好危险。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div></pre></td><td class="code"><pre><div class="line"><span class="comment">/**</span></div><div class="line"> * This method can be used to allow JavaScript to control the host</div><div class="line"> * application. This is a powerful feature, but also presents a security</div><div class="line"> * risk for apps targeting&#123;<span class="doctag">@link</span> android.os.Build.VERSION_CODES#JELLY_BEAN&#125; </div><div class="line"> * or earlier.</div><div class="line"> * /</div><div class="line"> //理解：该方法可以让js控制app，很强势，但在API17（4.2）及之前的版本存在安全问题</div><div class="line"> addJavascriptInterface(Object object, String name);</div><div class="line"> </div><div class="line"> //使用方法</div><div class="line"> mWebView.addJavascriptInterface(MethodObject,"name");</div><div class="line"></div><div class="line"> //还需要写一个方法类</div><div class="line"> class MethodObject extends Object &#123;</div><div class="line">    //无参函数，js中通过：var str = window.name.HtmlcallJava(); 获取到</div><div class="line">    <span class="doctag">@JavascriptInterface</span></div><div class="line">    public String HtmlcallJava() &#123;</div><div class="line">        return "Html call Java";</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    //有参函数，js中通过：window.jsObj.HtmlcallJava2("IT-homer blog");</div><div class="line">    <span class="doctag">@JavascriptInterface</span></div><div class="line">    public String HtmlcallJava2(final String param) &#123;</div><div class="line">        return "Html call Java : " + param;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+</blockquote>
+</li>
+</ul>
+<h3 id="WebView小技巧"><a href="#WebView小技巧" class="headerlink" title="WebView小技巧"></a><strong>WebView小技巧</strong></h3><ul>
+<li>捕获Url</li>
+<li>重定向问题，推荐<a href="http://blog.csdn.net/t12x3456/article/details/39134961" target="_blank" rel="external">WebView加载重定向url影响goBack()解决方案</a>、<a href="http://spencer-dev.com/blog/2015/android-webview-wang-zhi-zhong-ding-xiang-ying-xiang-goback.html/" target="_blank" rel="external">重定向影响goBack()</a></li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div></pre></td><td class="code"><pre><div class="line"><span class="comment">/**</span></div><div class="line"> * 捕获Url</div><div class="line"> * 多页面在同一个WebView打开</div><div class="line"> * /</div><div class="line"><span class="doctag">@Override</span></div><div class="line">public boolean shouldOverrideUrlLoading(WebView view, String url) &#123;</div><div class="line">			if(url.equal("需要捕获的url"))&#123;</div><div class="line">				// 捕获后的操作</div><div class="line">				// 前面提到的项目需求中，调用系统摄像头识别二维码、拍照、选择本地图片等功能</div><div class="line">				// 均可该方式简单实现（当然addJavascriptInterface方式也能达到相同效果）</div><div class="line">				return true;</div><div class="line">			&#125;</div><div class="line">            view.loadUrl(url);//该方法可让多页面在同一个WebView中打开（不用新建Activity或是调用浏览器）</div><div class="line">            return true;</div><div class="line">        &#125;</div><div class="line">//我们再回头看看该方法的官方API，会发现上面的方法多少还是有点坑（重定向问题，出现原理）     </div><div class="line">/**</div><div class="line">     * Give the host application a chance to take over the control when a new</div><div class="line">     * url is about to be loaded in the current WebView. If WebViewClient is not</div><div class="line">     * provided, by default WebView will ask Activity Manager to choose the</div><div class="line">     * proper handler for the url. If WebViewClient is provided, return true</div><div class="line">     * means the host application handles the url, while return false means the</div><div class="line">     * current WebView handles the url.</div><div class="line">     * /</div><div class="line">     </div><div class="line">     //该方法为应用提供处理新url的机会，如果WebView没有设置WebViewClient，WebView会调用系统来找到合适应用来处理该url；而如果设置了WebViewClient，该方法返回true说明该url由应用自行处理，而false则交给WebView自动处理。</div><div class="line">     </div><div class="line">     //那么，问题来了：上面方法中，我们returne的是true，而处理代码是让WebView直接loadUrl（不管什么情况都是直接loadUrl，并把该url加入历史记录），如果该url会重定向到其他url，如果调用了goBack，返回到该url，而该url又重定向到另外一个url，造成goBack失败。</div><div class="line">     </div><div class="line">     //解决方式：将处理重定向的url交给webView本身，webView能自行判断url是否为重定向url，能够确保历史记录准确性，自身跳转则需要另想办法：</div><div class="line">     //1. 与前端人员协商能够去掉重定向url？ </div><div class="line">     //2. 建立自身的历史栈，舍弃goBack()方法，移除重定向url与重定向后的url，根据需求自行进行loadUrl（需要思考一个合理的跳转逻辑）</div><div class="line">     //3. 建立自身的历史栈，与前端配合，提供js函数判断是否为重定向url，捕获url调用js函数，若为重定向url则作过滤处理，则不加入历史栈</div><div class="line">public boolean shouldOverrideUrlLoading(WebView view, String url)&#123;</div><div class="line">    return false;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="comment">/**</span></div><div class="line"> * 返回上一浏览页面</div><div class="line"> * /</div><div class="line">public boolean onKeyDown(int keyCode, KeyEvent event) &#123;       </div><div class="line">    if ((keyCode == KeyEvent.KEYCODE_BACK) &amp;&amp; mWebView.canGoBack()) &#123;       </div><div class="line">        mWebView.goBack();       </div><div class="line">        return true;       </div><div class="line">    &#125;       </div><div class="line">    return super.onKeyDown(keyCode, event);       </div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// WebClient 中 onReceivedError 的旧方法（API23 已过时）</span></div><div class="line"> <span class="meta">@Override</span></div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onReceivedError</span><span class="params">(WebView view, <span class="keyword">int</span> errorCode, String description, String failingUrl)</span> </span>&#123;</div><div class="line">      showErrorTips();<span class="comment">// 显示错误页面/提示（大家可以将 WebView 错误页面替换掉、结合 mWebView.reload 实现点击重连）</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<hr>
+<h2 id="WebView-进阶"><a href="#WebView-进阶" class="headerlink" title="WebView 进阶"></a><strong>WebView 进阶</strong></h2><h3 id="WebView-内存泄漏问题"><a href="#WebView-内存泄漏问题" class="headerlink" title="WebView 内存泄漏问题"></a><strong>WebView 内存泄漏问题</strong></h3><ul>
+<li><a href="http://my.oschina.net/zhibuji/blog/100580" target="_blank" rel="external">Android WebView Memory Leak</a></li>
+</ul>
+<p>WebView解析网页时会申请Native堆内存用于保存页面元素，当页面较复杂时会有很大的内存占用。如果页面包含图片，内存占用会更严重。并且打开新页面时，为了能快速回退，之前页面占用的内存也不会释放。有时浏览十几个网页，都会占用几百兆的内存。这样加载网页较多时，会导致系统不堪重负，最终强制关闭应用，也就是出现应用闪退或重启。</p>
+<p>由于占用的都是Native堆内存，所以实际占用的内存大小不会显示在常用的DDMS Heap工具中（这里看到的只是Java虚拟机分配的内存，一般即使Native堆内存已经占用了几百兆，这里显示的还只是几兆或十几兆）。只有使用adb shell中的一些命令比如dumpsys meminfo 包名，或者在程序中使用Debug.getNativeHeapSize()才能看到。</p>
+<p>据说由于WebView的一个BUG，即使它所在的Activity(或者Service)结束也就是onDestroy()之后，或者直接调用WebView.destroy()之后，它所占用这些内存也不会被释放。</p>
+<p>解决这个问题最直接的方法是：把使用了WebView的Activity(或者Service)放在单独的进程里。然后在检测到应用占用内存过大有可能被系统干掉或者它所在的Activity(或者Service)结束后，调用System.exit(0)，主动Kill掉进程。由于系统的内存分配是以进程为准的，进程关闭后，系统会自动回收所有内存。</p>
+<h3 id="WebView-缓存机制"><a href="#WebView-缓存机制" class="headerlink" title="WebView 缓存机制"></a><strong>WebView 缓存机制</strong></h3><p> 推荐文章<a href="http://blog.csdn.net/t12x3456/article/details/13745553" target="_blank" rel="external">Android WebView缓存机制详解</a>、<a href="http://www.androidchina.net/3168.html" target="_blank" rel="external">深入探究webView的缓存机制</a></p>
+<p>经过一番搜索得来的结果：</p>
+<pre><code>1. WebView缓存分为：页面缓存和数据缓存。页面缓存指加载网页时，对页面或资源数据的缓存。一般使用RE管理器进入目录： “/data/data/(packageName)/cache/org.chromium.android_webview“可看到；
+</code></pre><p>   数据缓存又分为 AppCache 与 DOM Storage 。AppCache可以有选择地缓存我们所想要缓存的东西；DOM Storage 则是HTML5的一个缓存机制，常用于存储简单的表单数据，关于DOM Storage，详情可学习参考下 <a href="http://www.ibm.com/developerworks/cn/web/1107_gaoly_html5storage/" target="_blank" rel="external">“浅谈HTML5 的DOM Storage机制”</a> 一文。</p>
+<pre><code>2. webView的缓存模式：
+</code></pre><p>  LOAD_CACHE_ONLY: 不使用网络，只读取本地缓存数据<br>LOAD_DEFAULT: 根据cache-control决定是否从网络上取数据。<br>LOAD_CACHE_NORMAL: API level 17中已经废弃, 从API level 11开始作用同LOAD_DEFAULT模式<br>LOAD_NO_CACHE: 不使用缓存，只从网络获取数据.<br>LOAD_CACHE_ELSE_NETWORK，只要本地有，无论是否过期，或者no-cache，都使用缓存中的数据。</p>
+<ol>
+<li>将缓存路径转移到外置sd卡<br>查看 Context 类API 发现这样一个方法，重写该方法即可（注意赋予相关权限，但Android 4.4 上权限限制，会使该方法失效）<br>另外趁机附上：<a href="http://dragon.leanote.com/post/Android%E7%9A%84%E5%A4%96%E9%83%A8%E5%AD%98%E5%82%A8%E5%8C%BA%E6%9D%83%E9%99%90%EF%BC%88%E8%AF%91%EF%BC%89" target="_blank" rel="external">Android 外部存储权限分析（译）</a>、<a href="http://www.cnblogs.com/mengdd/p/3742623.html" target="_blank" rel="external">Android存储访问及目录</a></li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line"><span class="comment">/**</span></div><div class="line">     * Returns the absolute path to the application specific cache directory</div><div class="line">     * on the filesystem. These files will be ones that get deleted first when the</div><div class="line">     * device runs low on storage.</div><div class="line">     * There is no guarantee when these files will be deleted.</div><div class="line">     *</div><div class="line">     * &lt;strong&gt;Note: you should not &lt;em&gt;rely&lt;/em&gt; on the system deleting these</div><div class="line">     * files for you; you should always have a reasonable maximum, such as 1 MB,</div><div class="line">     * for the amount of space you consume with cache files, and prune those</div><div class="line">     * files when exceeding that space.&lt;/strong&gt;</div><div class="line">     *</div><div class="line">     * <span class="doctag">@return</span> The path of the directory holding application cache files.</div><div class="line">     *</div><div class="line">     * <span class="doctag">@see</span> #openFileOutput</div><div class="line">     * <span class="doctag">@see</span> #getFileStreamPath</div><div class="line">     * <span class="doctag">@see</span> #getDir</div><div class="line">     */</div><div class="line">	    <span class="function"><span class="keyword">public</span> <span class="keyword">abstract</span> File <span class="title">getCacheDir</span><span class="params">()</span></span>;</div></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div></pre></td><td class="code"><pre><div class="line">File extStorageAppCachePath = <span class="keyword">null</span>;</div><div class="line">    <span class="function"><span class="keyword">public</span> File <span class="title">getCacheDir</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="comment">//读写权限判断</span></div><div class="line">        <span class="keyword">if</span> (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) &#123;</div><div class="line">            <span class="comment">//获取外置存储路径，生成相应缓存路径</span></div><div class="line">            File externalStorageDir = Environment.getExternalStorageDirectory();</div><div class="line">            <span class="keyword">if</span> (externalStorageDir != <span class="keyword">null</span>) &#123;</div><div class="line">                extStorageAppCachePath = <span class="keyword">new</span> File(externalStorageDir.getAbsolutePath() +</div><div class="line">                        File.separator + <span class="string">"Android"</span> + File.separator + <span class="string">"data"</span> + File.separator + getPackageName() + File.separator + <span class="string">"webViewCache"</span>);</div><div class="line">                <span class="comment">//路径不存在，创建</span></div><div class="line">                <span class="keyword">if</span> (!extStorageAppCachePath.exists()) &#123;</div><div class="line">                    <span class="keyword">if</span> (!extStorageAppCachePath.mkdirs()) &#123;</div><div class="line">                        <span class="comment">//创建路径失败</span></div><div class="line">                        extStorageAppCachePath = <span class="keyword">null</span>;</div><div class="line">                        <span class="keyword">return</span> <span class="keyword">super</span>.getCacheDir();</div><div class="line">                    &#125; <span class="keyword">else</span> &#123;</div><div class="line">                        <span class="comment">//成功创建，返回路径</span></div><div class="line">                        <span class="keyword">if</span> (extStorageAppCachePath != <span class="keyword">null</span>) &#123;</div><div class="line">                            <span class="keyword">return</span> extStorageAppCachePath;</div><div class="line">                        &#125;</div><div class="line">                    &#125;</div><div class="line">                &#125; <span class="keyword">else</span> &#123;</div><div class="line">                    <span class="comment">//路径已存在，直接返回</span></div><div class="line">                    <span class="keyword">if</span> (extStorageAppCachePath != <span class="keyword">null</span>) &#123;</div><div class="line">                        <span class="keyword">return</span> extStorageAppCachePath;</div><div class="line">                    &#125;</div><div class="line">                &#125;</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">return</span> <span class="keyword">super</span>.getCacheDir();</div><div class="line">    &#125;</div></pre></td></tr></table></figure>
+<hr>
+<h2 id="结束语"><a href="#结束语" class="headerlink" title="结束语"></a><strong>结束语</strong></h2><p> 本文主要是对自己学习WebView的过程、应用WebView遇到的一些问题，结合强大的网络资源总结而来，如果错漏，恳请指教，希望能给大家提供小小的帮助，在分享技术过程中，提升、成长！（有很长一段时间没有发布过博客，<strong>贵在坚持，贵在坚持！</strong>）</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+    <div>感谢您的阅读，希望文章对您有所帮助</div>
+    <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+      <span>赏</span>
+    </button>
+    <div id="QR" style="display: none;">
+      
+        <div id="wechat" style="display: inline-block">
+          <img id="wechat_qr" src="/images/wechatpay.png" alt="Goo WeChat Pay"/>
+          <p>微信打赏</p>
+        </div>
+      
+      
+        <div id="alipay" style="display: inline-block">
+          <img id="alipay_qr" src="/images/alipay.png" alt="Goo Alipay"/>
+          <p>支付宝打赏</p>
+        </div>
+      
+    </div>
+  </div>
+
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Android-widget/" rel="tag">#Android widget</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/09/24/拆轮子笔记 - OkHttp/" rel="next" title="拆轮子笔记 - OkHttp">
+                <i class="fa fa-chevron-left"></i> 拆轮子笔记 - OkHttp
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <div class="ds-share flat" data-thread-key="2016/09/04/Android-WebView全面总结/"
+     data-title="Android WebView全面总结"
+     data-content=""
+     data-url="http://yoursite.com/2016/09/04/Android-WebView全面总结/">
+  <div class="ds-share-inline">
+    <ul  class="ds-share-icons-16">
+
+      <li data-toggle="ds-share-icons-more"><a class="ds-more" href="javascript:void(0);">分享到：</a></li>
+      <li><a class="ds-weibo" href="javascript:void(0);" data-service="weibo">微博</a></li>
+      <li><a class="ds-qzone" href="javascript:void(0);" data-service="qzone">QQ空间</a></li>
+      <li><a class="ds-qqt" href="javascript:void(0);" data-service="qqt">腾讯微博</a></li>
+      <li><a class="ds-wechat" href="javascript:void(0);" data-service="wechat">微信</a></li>
+
+    </ul>
+    <div class="ds-share-icons-more">
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2016/09/04/Android-WebView全面总结/"
+           data-title="Android WebView全面总结" data-url="http://yoursite.com/2016/09/04/Android-WebView全面总结/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/icon.png"
+               alt="Goo" />
+          <p class="site-author-name" itemprop="name">Goo</p>
+          <p class="site-description motion-element" itemprop="description">沿路走到这里，尽量不要后退</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">15</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">12</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/Goo-Yao" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://www.jianshu.com/u/21d2303e41a6" target="_blank" title="简书">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  简书
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#知识点汇总："><span class="nav-number">1.</span> <span class="nav-text">知识点汇总：</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#前言"><span class="nav-number">2.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#WebView-小科普"><span class="nav-number">3.</span> <span class="nav-text">WebView 小科普</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#WebView基本使用"><span class="nav-number">3.1.</span> <span class="nav-text">WebView基本使用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#WebViewClient-与-WebChromeClient"><span class="nav-number">3.2.</span> <span class="nav-text">WebViewClient 与 WebChromeClient</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#WebView与Javascript交互"><span class="nav-number">3.3.</span> <span class="nav-text">WebView与Javascript交互</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#WebView小技巧"><span class="nav-number">3.4.</span> <span class="nav-text">WebView小技巧</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#WebView-进阶"><span class="nav-number">4.</span> <span class="nav-text">WebView 进阶</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#WebView-内存泄漏问题"><span class="nav-number">4.1.</span> <span class="nav-text">WebView 内存泄漏问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#WebView-缓存机制"><span class="nav-number">4.2.</span> <span class="nav-text">WebView 缓存机制</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#结束语"><span class="nav-number">5.</span> <span class="nav-text">结束语</span></a></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Goo</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.0.1"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"goo-tracks"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+    <script src="/lib/ua-parser-js/dist/ua-parser.min.js?v=0.7.9"></script>
+    <script src="/js/src/hook-duoshuo.js"></script>
+  
+
+
+
+
+
+
+  
+  
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length == 0) {
+       search_path = "search.xml";
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    function proceedsearch() {
+      $("body").append('<div class="popoverlay">').css('overflow', 'hidden');
+      $('.popup').toggle();
+
+    }
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+    'use strict';
+    $.ajax({
+        url: path,
+        dataType: "xml",
+        async: true,
+        success: function( xmlResponse ) {
+            // get the contents from search data
+            isfetched = true;
+            $('.popup').detach().appendTo('.header-inner');
+            var datas = $( "entry", xmlResponse ).map(function() {
+                return {
+                    title: $( "title", this ).text(),
+                    content: $("content",this).text(),
+                    url: $( "url" , this).text()
+                };
+            }).get();
+            var $input = document.getElementById(search_id);
+            var $resultContent = document.getElementById(content_id);
+            $input.addEventListener('input', function(){
+                var matchcounts = 0;
+                var str='<ul class=\"search-result-list\">';
+                var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                $resultContent.innerHTML = "";
+                if (this.value.trim().length > 1) {
+                // perform local searching
+                datas.forEach(function(data) {
+                    var isMatch = true;
+                    var content_index = [];
+                    var data_title = data.title.trim().toLowerCase();
+                    var data_content = data.content.trim().replace(/<[^>]+>/g,"").toLowerCase();
+                    var data_url = data.url;
+                    var index_title = -1;
+                    var index_content = -1;
+                    var first_occur = -1;
+                    // only match artiles with not empty titles and contents
+                    if(data_title != '' && data_content != '') {
+                        keywords.forEach(function(keyword, i) {
+                            index_title = data_title.indexOf(keyword);
+                            index_content = data_content.indexOf(keyword);
+                            if( index_title < 0 && index_content < 0 ){
+                                isMatch = false;
+                            } else {
+                                if (index_content < 0) {
+                                    index_content = 0;
+                                }
+                                if (i == 0) {
+                                    first_occur = index_content;
+                                }
+                            }
+                        });
+                    }
+                    // show search results
+                    if (isMatch) {
+                        matchcounts += 1;
+                        str += "<li><a href='"+ data_url +"' class='search-result-title'>"+ data_title +"</a>";
+                        var content = data.content.trim().replace(/<[^>]+>/g,"");
+                        if (first_occur >= 0) {
+                            // cut out 100 characters
+                            var start = first_occur - 20;
+                            var end = first_occur + 80;
+                            if(start < 0){
+                                start = 0;
+                            }
+                            if(start == 0){
+                                end = 50;
+                            }
+                            if(end > content.length){
+                                end = content.length;
+                            }
+                            var match_content = content.substring(start, end);
+                            // highlight all keywords
+                            keywords.forEach(function(keyword){
+                                var regS = new RegExp(keyword, "gi");
+                                match_content = match_content.replace(regS, "<b class=\"search-keyword\">"+keyword+"</b>");
+                            });
+
+                            str += "<p class=\"search-result\">" + match_content +"...</p>"
+                        }
+                        str += "</li>";
+                    }
+                })};
+                str += "</ul>";
+                if (matchcounts == 0) { str = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>' }
+                if (keywords == "") { str = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>' }
+                $resultContent.innerHTML = str;
+            });
+            proceedsearch();
+        }
+    });}
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched == false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+
+    });
+
+    $('.popup-btn-close').click(function(e){
+      $('.popup').hide();
+      $(".popoverlay").remove();
+      $('body').css('overflow', '');
+    });
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+  </script>
+
+
+  
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("BSwPKiNckzvJX4DpBuM5IM9Y-gzGzoHsz", "cRHrGaMhc9VOu2qDwkwSfrXx");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+</body>
+</html>

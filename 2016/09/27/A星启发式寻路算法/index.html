@@ -1,0 +1,991 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="算法," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Goo's Tracks" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="前言在课堂上听老师讲了一个人工智能的基础小算法，感觉神奇而有趣，便自行研究一下。研究了几个小时，总算实现了。想写一篇博文来记录一下今天的学习经历，那么，就请有兴趣的各位跟我一起从零实现一个简单的A星寻路算法啦。">
+<meta name="keywords" content="算法">
+<meta property="og:type" content="article">
+<meta property="og:title" content="启发式搜索 - 有趣而神奇的 A* 算法">
+<meta property="og:url" content="http://yoursite.com/2016/09/27/A星启发式寻路算法/index.html">
+<meta property="og:site_name" content="Goo's Tracks">
+<meta property="og:description" content="前言在课堂上听老师讲了一个人工智能的基础小算法，感觉神奇而有趣，便自行研究一下。研究了几个小时，总算实现了。想写一篇博文来记录一下今天的学习经历，那么，就请有兴趣的各位跟我一起从零实现一个简单的A星寻路算法啦。">
+<meta property="og:image" content="http://odzvmv4ab.bkt.clouddn.com/A%E6%98%9F%E7%AE%97%E6%B3%95%E5%9C%B0%E5%9B%BE.png">
+<meta property="og:updated_time" content="2016-10-09T11:28:42.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="启发式搜索 - 有趣而神奇的 A* 算法">
+<meta name="twitter:description" content="前言在课堂上听老师讲了一个人工智能的基础小算法，感觉神奇而有趣，便自行研究一下。研究了几个小时，总算实现了。想写一篇博文来记录一下今天的学习经历，那么，就请有兴趣的各位跟我一起从零实现一个简单的A星寻路算法啦。">
+<meta name="twitter:image" content="http://odzvmv4ab.bkt.clouddn.com/A%E6%98%9F%E7%AE%97%E6%B3%95%E5%9C%B0%E5%9B%BE.png">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2016/09/27/A星启发式寻路算法/"/>
+
+  <title> 启发式搜索 - 有趣而神奇的 A* 算法 | Goo's Tracks </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//tajs.qq.com/stats?sId=58321747";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+  
+  
+    
+  
+  
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Goo's Tracks</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">记一段技术小足迹</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup">
+ <span class="search-icon fa fa-search"></span>
+ <input type="text" id="local-search-input">
+ <div id="local-search-result"></div>
+ <span class="popup-btn-close">close</span>
+</div>
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                启发式搜索 - 有趣而神奇的 A* 算法
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-09-27T16:01:06+08:00" content="2016-09-27">
+              2016-09-27
+            </time>
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2016/09/27/A星启发式寻路算法/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/09/27/A星启发式寻路算法/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             <span id="/2016/09/27/A星启发式寻路算法/" class="leancloud_visitors" data-flag-title="启发式搜索 - 有趣而神奇的 A* 算法">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>在课堂上听老师讲了一个人工智能的基础小算法，感觉神奇而有趣，便自行研究一下。研究了几个小时，总算实现了。想写一篇博文来记录一下今天的学习经历，那么，就请有兴趣的各位跟我一起从零实现一个简单的A星寻路算法啦。<a id="more"></a></p>
+<h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><ul>
+<li>首先，需要有个基本概念：A*搜寻算法俗称“A星算法”。这是一种在图形平面上，有多个节点的路径，求出最低通过成本的算法。（启发式搜索）</li>
+</ul>
+<h2 id="几个要素"><a href="#几个要素" class="headerlink" title="几个要素"></a>几个要素</h2><ul>
+<li>是否相通的标记（标记有许多种方式，例如：0为通畅、1为障碍；或者把两两结点的线路保存下来，再去查该线路是否存在）</li>
+<li>一个父亲结点指针（处理结点时候，需要知道该结点的父节点）</li>
+<li>OPEN 表（待检查的点，认为当前点为父亲结点，父亲结点也要保存，）</li>
+<li>CLOSE 表（不再检查的点）</li>
+<li>一条公式：F = H + G<br>F 为到终点的总耗费<br>H 为网格上当前方格移动到终点的预估耗费（预估算法有很多种，例如：“曼哈顿法”：H = |行数| + |列数|、另外也可利用直线距离…）；<br>G 为父亲结点移动到当前结点的预估移动耗费；</li>
+<li><p>现在，再来举个栗子，下面的步骤解析也会与之相结合：</p>
+<p> <img src="http://odzvmv4ab.bkt.clouddn.com/A%E6%98%9F%E7%AE%97%E6%B3%95%E5%9C%B0%E5%9B%BE.png" alt="A*小栗子"></p>
+<p>   简单解释：</p>
+<pre><code>- 图中有 A、B、C、D、E、F、G、H 8个结点（ A 为起点、E 为终点）
+- 括号为当前结点到终点的预估值（由于预估算法的选择有许多，使用时需要根据实际情况选择，而我们现在优先学习A星算法的思路，因此这里直接给出预估值 - 即 H 值）
+- 结点间的连线为相同直线，上面的数字代表线路的移动耗费值（即 G 值）
+- 任务：利用A星算法计算出路线
+</code></pre></li>
+</ul>
+<h2 id="算法步骤"><a href="#算法步骤" class="headerlink" title="算法步骤"></a>算法步骤</h2><ol>
+<li>设起点 A ，将 A 加入 OPEN 表</li>
+<li>寻找相邻可达点，计算出其 F 值，并加入 OPEN 表；若相邻点已经在 Open 表中，则判断其是否需要更新 F 值；若相邻点已经在 Close 表中，则跳过该点</li>
+<li>将原父亲结点（A 结点）从 OPEN 表中删除，把它加入到 CLOSE 表中</li>
+<li>从 OPEN 表中选择一个 F值最小的，然后将它作为父亲结点，继续处理其相邻结点</li>
+<li>只要 Open 表不为空，则循环执行上述2、3、4步骤，发现相邻点是终点，则跳出循环。</li>
+<li>当 Open 表为空，还没有找到终点，则说明起点不可达到终点</li>
+</ol>
+<h2 id="Just-show-me-the-code-！"><a href="#Just-show-me-the-code-！" class="headerlink" title="Just show me the code ！"></a>Just show me the code ！</h2><p>讲了那么多，理论知识总该要实践才行，建议大家先参考伪代码，理解好算法思路，自行尝试实现一番，再去看我那些半桶水的实现代码，一定会有更多收获的。</p>
+<p>一段核心思路伪代码：<br><figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">while</span>(OPEN!=<span class="literal">NULL</span>)</div><div class="line">&#123;</div><div class="line">    从OPEN表中取f(n)最小的节点n;</div><div class="line">    <span class="keyword">if</span>(n节点==目标节点)</div><div class="line">        <span class="keyword">break</span>;</div><div class="line">    <span class="keyword">for</span>(当前节点n的每个子节点X)</div><div class="line">    &#123;</div><div class="line">        计算f(X);</div><div class="line">        <span class="keyword">if</span>(XinOPEN)</div><div class="line">            <span class="keyword">if</span>(新的f(X)&lt;OPEN中的f(X))</div><div class="line">            &#123;</div><div class="line">                把n设置为X的父亲;</div><div class="line">                更新OPEN表中的f(n);</div><div class="line">            &#125;</div><div class="line">        <span class="keyword">if</span>(XinCLOSE)</div><div class="line">            <span class="keyword">continue</span>;</div><div class="line">        <span class="keyword">if</span>(Xnotinboth)</div><div class="line">        &#123;</div><div class="line">            把n设置为X的父亲;</div><div class="line">            求f(X);</div><div class="line">            并将X插入OPEN表中;<span class="comment">//还没有排序</span></div><div class="line">        &#125;</div><div class="line">    &#125;<span class="comment">//endfor</span></div><div class="line">    将n节点插入CLOSE表中;</div><div class="line">    按照f(n)将OPEN表中的节点排序;<span class="comment">//实际上是比较OPEN表内节点f的大小，从最小路径的节点向下进行。</span></div><div class="line">&#125;<span class="comment">//endwhile(OPEN!=NULL)</span></div></pre></td></tr></table></figure></p>
+<p>我的 Java 实现代码：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">package</span> com.goo.astart;</div><div class="line"><span class="comment">/**</span></div><div class="line"> *路径实体类</div><div class="line"> * </div><div class="line"> * <span class="doctag">@author</span> Goo</div><div class="line"> * </div><div class="line"> */</div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Road</span> </span>&#123;</div><div class="line">	<span class="keyword">public</span> String name;</div><div class="line">	<span class="keyword">public</span> <span class="keyword">int</span> length;</div><div class="line">	<span class="function"><span class="keyword">public</span> <span class="title">Road</span><span class="params">(String name, <span class="keyword">int</span> length)</span> </span>&#123;</div><div class="line">		<span class="keyword">this</span>.name = name;</div><div class="line">		<span class="keyword">this</span>.length = length;</div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">package</span> com.goo.astart;</div><div class="line"><span class="comment">/**</span></div><div class="line"> * 结点实体类</div><div class="line"> * </div><div class="line"> * <span class="doctag">@author</span> Goo</div><div class="line"> * </div><div class="line"> */</div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">NodeStruct</span> </span>&#123;</div><div class="line">	<span class="function"><span class="keyword">public</span> <span class="title">NodeStruct</span><span class="params">(String nodeName, <span class="keyword">int</span> estimate)</span> </span>&#123;</div><div class="line">		<span class="keyword">this</span>.nodeName = nodeName;</div><div class="line">		<span class="keyword">this</span>.estimate = estimate;</div><div class="line">	&#125;</div><div class="line">	<span class="comment">/**</span></div><div class="line">	 * 结点名称</div><div class="line">	 */</div><div class="line">	<span class="keyword">public</span> String nodeName;</div><div class="line">	<span class="comment">/**</span></div><div class="line">	 * 父亲结点</div><div class="line">	 */</div><div class="line">	<span class="keyword">public</span> NodeStruct fatherNode = <span class="keyword">null</span>;</div><div class="line">	<span class="comment">/**</span></div><div class="line">	 * 总耗费</div><div class="line">	 */</div><div class="line">	<span class="keyword">public</span> <span class="keyword">int</span> weight = <span class="number">0</span>;</div><div class="line">	<span class="comment">/**</span></div><div class="line">	 * 当前结点到终点的预估耗费</div><div class="line">	 */</div><div class="line">	<span class="keyword">public</span> <span class="keyword">int</span> estimate = <span class="number">0</span>;</div><div class="line">	<span class="comment">/**</span></div><div class="line">	 * 父亲结点到当前结点的实际耗费</div><div class="line">	 */</div><div class="line">	<span class="keyword">public</span> <span class="keyword">int</span> practical = <span class="number">0</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div><div class="line">97</div><div class="line">98</div><div class="line">99</div><div class="line">100</div><div class="line">101</div><div class="line">102</div><div class="line">103</div><div class="line">104</div><div class="line">105</div><div class="line">106</div><div class="line">107</div><div class="line">108</div><div class="line">109</div><div class="line">110</div><div class="line">111</div><div class="line">112</div><div class="line">113</div><div class="line">114</div><div class="line">115</div><div class="line">116</div><div class="line">117</div><div class="line">118</div><div class="line">119</div><div class="line">120</div><div class="line">121</div><div class="line">122</div><div class="line">123</div><div class="line">124</div><div class="line">125</div><div class="line">126</div><div class="line">127</div><div class="line">128</div><div class="line">129</div><div class="line">130</div><div class="line">131</div><div class="line">132</div><div class="line">133</div><div class="line">134</div><div class="line">135</div><div class="line">136</div><div class="line">137</div><div class="line">138</div><div class="line">139</div><div class="line">140</div><div class="line">141</div><div class="line">142</div><div class="line">143</div><div class="line">144</div><div class="line">145</div><div class="line">146</div><div class="line">147</div><div class="line">148</div><div class="line">149</div><div class="line">150</div><div class="line">151</div><div class="line">152</div><div class="line">153</div><div class="line">154</div><div class="line">155</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//Main.java</span></div><div class="line"><span class="keyword">package</span> com.goo.astart;</div><div class="line"><span class="keyword">import</span> java.util.ArrayList;</div><div class="line"><span class="keyword">import</span> java.util.Collections;</div><div class="line"><span class="keyword">import</span> java.util.Comparator;</div><div class="line"><span class="keyword">import</span> javax.management.openmbean.OpenDataException;</div><div class="line"><span class="keyword">import</span> javax.xml.soap.Node;</div><div class="line"><span class="comment">/**</span></div><div class="line"> * 含有主方法的主逻辑类</div><div class="line"> * </div><div class="line"> * <span class="doctag">@author</span> Goo</div><div class="line"> * </div><div class="line"> */</div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Main</span> </span>&#123;</div><div class="line">	<span class="keyword">private</span> <span class="keyword">static</span> ArrayList&lt;NodeStruct&gt; dataList = <span class="keyword">new</span> ArrayList&lt;NodeStruct&gt;();</div><div class="line">	<span class="keyword">private</span> <span class="keyword">static</span> ArrayList&lt;Road&gt; roadList = <span class="keyword">new</span> ArrayList&lt;Road&gt;();</div><div class="line">	<span class="keyword">private</span> <span class="keyword">static</span> ArrayList&lt;NodeStruct&gt; openList = <span class="keyword">new</span> ArrayList&lt;NodeStruct&gt;();</div><div class="line">	<span class="keyword">private</span> <span class="keyword">static</span> ArrayList&lt;NodeStruct&gt; closeList = <span class="keyword">new</span> ArrayList&lt;NodeStruct&gt;();</div><div class="line">	<span class="keyword">private</span> <span class="keyword">static</span> NodeStruct startNode;</div><div class="line">	<span class="keyword">private</span> <span class="keyword">static</span> NodeStruct endNode;</div><div class="line">	<span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> HASFOUND = <span class="number">10000</span>;</div><div class="line">	<span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> NOTFOUND = <span class="number">20000</span>;</div><div class="line">	<span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">int</span> stepCount = <span class="number">0</span>;</div><div class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</div><div class="line">		loadData();</div><div class="line">		<span class="comment">// 1、将起点加入Open表</span></div><div class="line">		addToOpenList(startNode);</div><div class="line">		<span class="comment">// 2、搜索相邻路径？</span></div><div class="line">		<span class="keyword">if</span> (search() == HASFOUND) &#123;</div><div class="line">			System.out.println(<span class="string">"路径搜索完成，成功找到最短路径"</span>);</div><div class="line">		&#125; <span class="keyword">else</span> &#123;</div><div class="line">			System.out.println(<span class="string">"路径搜索完成，没有可达路径"</span>);</div><div class="line">		&#125;</div><div class="line">	&#125;</div><div class="line">	<span class="comment">/**</span></div><div class="line">	 * A星核心算法</div><div class="line">	 * </div><div class="line">	 * <span class="doctag">@return</span></div><div class="line">	 */</div><div class="line">	<span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">int</span> <span class="title">search</span><span class="params">()</span> </span>&#123;</div><div class="line">		<span class="comment">// Open表不为空</span></div><div class="line">		<span class="keyword">while</span> (openList.size() != <span class="number">0</span>) &#123;</div><div class="line">			<span class="comment">// 按照总耗费从小到大排序</span></div><div class="line">			Collections.sort(openList, <span class="keyword">new</span> Comparator&lt;NodeStruct&gt;() &#123;</div><div class="line">				<span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">compare</span><span class="params">(NodeStruct node1, NodeStruct node2)</span> </span>&#123;</div><div class="line">					<span class="keyword">return</span> node1.weight - node2.weight;</div><div class="line">				&#125;;</div><div class="line">			&#125;);</div><div class="line">			<span class="comment">// 取最小结点作为父亲结点</span></div><div class="line">			NodeStruct fatherNode = openList.get(<span class="number">0</span>);</div><div class="line">			stepCount++;</div><div class="line">			System.out.println(<span class="string">"步骤"</span> + stepCount + <span class="string">":"</span> + fatherNode.nodeName</div><div class="line">					+ <span class="string">" - 结点F值："</span> + fatherNode.weight);</div><div class="line">			<span class="comment">// 结点已找到</span></div><div class="line">			<span class="keyword">if</span> (fatherNode.equals(endNode)) &#123;</div><div class="line">				<span class="keyword">return</span> HASFOUND;</div><div class="line">			&#125;</div><div class="line">			<span class="comment">// 寻找相邻路径</span></div><div class="line">			<span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; dataList.size(); i++) &#123;</div><div class="line">				NodeStruct neighNode = dataList.get(i);</div><div class="line">				String roadName = neighNode.nodeName + fatherNode.nodeName;</div><div class="line">				String roadNameRev = fatherNode.nodeName + neighNode.nodeName;</div><div class="line">				<span class="keyword">for</span> (<span class="keyword">int</span> j = <span class="number">0</span>; j &lt; roadList.size(); j++) &#123;</div><div class="line">					Road tempRoad = roadList.get(j);</div><div class="line">					<span class="comment">// 找到相邻点</span></div><div class="line">					<span class="keyword">if</span> (roadName.equals(tempRoad.name)</div><div class="line">							|| roadNameRev.equals(tempRoad.name)) &#123;</div><div class="line">						<span class="comment">// 如果在Close表中，忽略</span></div><div class="line">						<span class="keyword">if</span> (closeList.contains(neighNode)) &#123;</div><div class="line">							<span class="keyword">continue</span>;</div><div class="line">						&#125;</div><div class="line">						<span class="keyword">else</span> <span class="keyword">if</span> (openList.contains(neighNode)) &#123;</div><div class="line">							<span class="comment">// 如果在Open表中</span></div><div class="line">							<span class="comment">// 如果父亲结点到该结点耗费值更小，则更新耗费值</span></div><div class="line">							<span class="keyword">if</span> (tempRoad.length + neighNode.estimate &lt; neighNode.weight) &#123;</div><div class="line">								neighNode.weight = tempRoad.length</div><div class="line">										+ neighNode.estimate;</div><div class="line">							&#125;</div><div class="line">						&#125; <span class="keyword">else</span> &#123;</div><div class="line">							<span class="comment">// 两个表都没有（空白点）</span></div><div class="line">							<span class="comment">// 计算该点总耗费</span></div><div class="line">							neighNode.weight = neighNode.estimate</div><div class="line">									+ tempRoad.length;</div><div class="line">							<span class="comment">// 成功搜索路径，认为是相邻点，加入到Open表</span></div><div class="line">							addToOpenList(neighNode);</div><div class="line">						&#125;</div><div class="line">					&#125;</div><div class="line">				&#125;</div><div class="line">			&#125;</div><div class="line">			<span class="comment">// 最后将父结点移除Open表，放入Close表</span></div><div class="line">			removeFromOpen(fatherNode);</div><div class="line">			addToCloseList(fatherNode);</div><div class="line">		&#125;</div><div class="line">		<span class="keyword">return</span> NOTFOUND;</div><div class="line">	&#125;</div><div class="line">	<span class="comment">/**</span></div><div class="line">	 * 加载数据</div><div class="line">	 */</div><div class="line">	<span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">loadData</span><span class="params">()</span> </span>&#123;</div><div class="line">		startNode = <span class="keyword">new</span> NodeStruct(<span class="string">"A"</span>, <span class="number">15</span>);</div><div class="line">		startNode.weight = <span class="number">15</span>;</div><div class="line">		endNode = <span class="keyword">new</span> NodeStruct(<span class="string">"E"</span>, <span class="number">0</span>);</div><div class="line">		dataList.add(startNode);</div><div class="line">		dataList.add(endNode);</div><div class="line">		dataList.add(<span class="keyword">new</span> NodeStruct(<span class="string">"B"</span>, <span class="number">14</span>));</div><div class="line">		dataList.add(<span class="keyword">new</span> NodeStruct(<span class="string">"C"</span>, <span class="number">10</span>));</div><div class="line">		dataList.add(<span class="keyword">new</span> NodeStruct(<span class="string">"D"</span>, <span class="number">2</span>));</div><div class="line">		dataList.add(<span class="keyword">new</span> NodeStruct(<span class="string">"F"</span>, <span class="number">5</span>));</div><div class="line">		dataList.add(<span class="keyword">new</span> NodeStruct(<span class="string">"G"</span>, <span class="number">9</span>));</div><div class="line">		dataList.add(<span class="keyword">new</span> NodeStruct(<span class="string">"H"</span>, <span class="number">11</span>));</div><div class="line">		roadList.add(<span class="keyword">new</span> Road(<span class="string">"AB"</span>, <span class="number">3</span>));</div><div class="line">		roadList.add(<span class="keyword">new</span> Road(<span class="string">"AH"</span>, <span class="number">4</span>));</div><div class="line">		roadList.add(<span class="keyword">new</span> Road(<span class="string">"BH"</span>, <span class="number">5</span>));</div><div class="line">		roadList.add(<span class="keyword">new</span> Road(<span class="string">"CG"</span>, <span class="number">3</span>));</div><div class="line">		roadList.add(<span class="keyword">new</span> Road(<span class="string">"CD"</span>, <span class="number">8</span>));</div><div class="line">		roadList.add(<span class="keyword">new</span> Road(<span class="string">"CB"</span>, <span class="number">4</span>));</div><div class="line">		roadList.add(<span class="keyword">new</span> Road(<span class="string">"DG"</span>, <span class="number">8</span>));</div><div class="line">		roadList.add(<span class="keyword">new</span> Road(<span class="string">"DF"</span>, <span class="number">3</span>));</div><div class="line">		roadList.add(<span class="keyword">new</span> Road(<span class="string">"DE"</span>, <span class="number">2</span>));</div><div class="line">		roadList.add(<span class="keyword">new</span> Road(<span class="string">"FG"</span>, <span class="number">4</span>));</div><div class="line">		roadList.add(<span class="keyword">new</span> Road(<span class="string">"GH"</span>, <span class="number">2</span>));</div><div class="line">	&#125;</div><div class="line">	<span class="comment">/**</span></div><div class="line">	 * 添加到 Open 表</div><div class="line">	 * </div><div class="line">	 * <span class="doctag">@param</span> node</div><div class="line">	 */</div><div class="line">	<span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">addToOpenList</span><span class="params">(NodeStruct node)</span> </span>&#123;</div><div class="line">		openList.add(node);</div><div class="line">	&#125;</div><div class="line">	<span class="comment">/**</span></div><div class="line">	 * 添加到 Close 表</div><div class="line">	 * </div><div class="line">	 * <span class="doctag">@param</span> node</div><div class="line">	 */</div><div class="line">	<span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">addToCloseList</span><span class="params">(NodeStruct node)</span> </span>&#123;</div><div class="line">		closeList.add(node);</div><div class="line">	&#125;</div><div class="line">	<span class="comment">/**</span></div><div class="line">	 * 从 Open 表移除</div><div class="line">	 * </div><div class="line">	 * <span class="doctag">@param</span> node</div><div class="line">	 */</div><div class="line">	<span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">removeFromOpen</span><span class="params">(NodeStruct node)</span> </span>&#123;</div><div class="line">		openList.remove(node);</div><div class="line">	&#125;</div><div class="line">	<span class="comment">/**</span></div><div class="line">	 * 从 Close 表移除</div><div class="line">	 * </div><div class="line">	 * <span class="doctag">@param</span> node</div><div class="line">	 */</div><div class="line">	<span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">removeFromClose</span><span class="params">(NodeStruct node)</span> </span>&#123;</div><div class="line">		closeList.remove(node);</div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>相信大家动手实现后，就会对A*算法有个基本的认识啦，以上代码通过了几个简单的样例，但不排除会隐藏着奇怪的 Bug 噢，或者是一段有待改进的代码，欢迎大家指点指点。</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+    <div>感谢您的阅读，希望文章对您有所帮助</div>
+    <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+      <span>赏</span>
+    </button>
+    <div id="QR" style="display: none;">
+      
+        <div id="wechat" style="display: inline-block">
+          <img id="wechat_qr" src="/images/wechatpay.png" alt="Goo WeChat Pay"/>
+          <p>微信打赏</p>
+        </div>
+      
+      
+        <div id="alipay" style="display: inline-block">
+          <img id="alipay_qr" src="/images/alipay.png" alt="Goo Alipay"/>
+          <p>支付宝打赏</p>
+        </div>
+      
+    </div>
+  </div>
+
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/算法/" rel="tag">#算法</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/10/09/Java自动装、拆箱认知/" rel="next" title="Java自动装、拆箱解析">
+                <i class="fa fa-chevron-left"></i> Java自动装、拆箱解析
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/09/24/拆轮子笔记 - OkHttp/" rel="prev" title="拆轮子笔记 - OkHttp">
+                拆轮子笔记 - OkHttp <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <div class="ds-share flat" data-thread-key="2016/09/27/A星启发式寻路算法/"
+     data-title="启发式搜索 - 有趣而神奇的 A* 算法"
+     data-content=""
+     data-url="http://yoursite.com/2016/09/27/A星启发式寻路算法/">
+  <div class="ds-share-inline">
+    <ul  class="ds-share-icons-16">
+
+      <li data-toggle="ds-share-icons-more"><a class="ds-more" href="javascript:void(0);">分享到：</a></li>
+      <li><a class="ds-weibo" href="javascript:void(0);" data-service="weibo">微博</a></li>
+      <li><a class="ds-qzone" href="javascript:void(0);" data-service="qzone">QQ空间</a></li>
+      <li><a class="ds-qqt" href="javascript:void(0);" data-service="qqt">腾讯微博</a></li>
+      <li><a class="ds-wechat" href="javascript:void(0);" data-service="wechat">微信</a></li>
+
+    </ul>
+    <div class="ds-share-icons-more">
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2016/09/27/A星启发式寻路算法/"
+           data-title="启发式搜索 - 有趣而神奇的 A* 算法" data-url="http://yoursite.com/2016/09/27/A星启发式寻路算法/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/icon.png"
+               alt="Goo" />
+          <p class="site-author-name" itemprop="name">Goo</p>
+          <p class="site-description motion-element" itemprop="description">沿路走到这里，尽量不要后退</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">15</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">12</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/Goo-Yao" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://www.jianshu.com/u/21d2303e41a6" target="_blank" title="简书">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  简书
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#概述"><span class="nav-number">2.</span> <span class="nav-text">概述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#几个要素"><span class="nav-number">3.</span> <span class="nav-text">几个要素</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#算法步骤"><span class="nav-number">4.</span> <span class="nav-text">算法步骤</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Just-show-me-the-code-！"><span class="nav-number">5.</span> <span class="nav-text">Just show me the code ！</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">6.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Goo</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.0.1"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"goo-tracks"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+    <script src="/lib/ua-parser-js/dist/ua-parser.min.js?v=0.7.9"></script>
+    <script src="/js/src/hook-duoshuo.js"></script>
+  
+
+
+
+
+
+
+  
+  
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length == 0) {
+       search_path = "search.xml";
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    function proceedsearch() {
+      $("body").append('<div class="popoverlay">').css('overflow', 'hidden');
+      $('.popup').toggle();
+
+    }
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+    'use strict';
+    $.ajax({
+        url: path,
+        dataType: "xml",
+        async: true,
+        success: function( xmlResponse ) {
+            // get the contents from search data
+            isfetched = true;
+            $('.popup').detach().appendTo('.header-inner');
+            var datas = $( "entry", xmlResponse ).map(function() {
+                return {
+                    title: $( "title", this ).text(),
+                    content: $("content",this).text(),
+                    url: $( "url" , this).text()
+                };
+            }).get();
+            var $input = document.getElementById(search_id);
+            var $resultContent = document.getElementById(content_id);
+            $input.addEventListener('input', function(){
+                var matchcounts = 0;
+                var str='<ul class=\"search-result-list\">';
+                var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                $resultContent.innerHTML = "";
+                if (this.value.trim().length > 1) {
+                // perform local searching
+                datas.forEach(function(data) {
+                    var isMatch = true;
+                    var content_index = [];
+                    var data_title = data.title.trim().toLowerCase();
+                    var data_content = data.content.trim().replace(/<[^>]+>/g,"").toLowerCase();
+                    var data_url = data.url;
+                    var index_title = -1;
+                    var index_content = -1;
+                    var first_occur = -1;
+                    // only match artiles with not empty titles and contents
+                    if(data_title != '' && data_content != '') {
+                        keywords.forEach(function(keyword, i) {
+                            index_title = data_title.indexOf(keyword);
+                            index_content = data_content.indexOf(keyword);
+                            if( index_title < 0 && index_content < 0 ){
+                                isMatch = false;
+                            } else {
+                                if (index_content < 0) {
+                                    index_content = 0;
+                                }
+                                if (i == 0) {
+                                    first_occur = index_content;
+                                }
+                            }
+                        });
+                    }
+                    // show search results
+                    if (isMatch) {
+                        matchcounts += 1;
+                        str += "<li><a href='"+ data_url +"' class='search-result-title'>"+ data_title +"</a>";
+                        var content = data.content.trim().replace(/<[^>]+>/g,"");
+                        if (first_occur >= 0) {
+                            // cut out 100 characters
+                            var start = first_occur - 20;
+                            var end = first_occur + 80;
+                            if(start < 0){
+                                start = 0;
+                            }
+                            if(start == 0){
+                                end = 50;
+                            }
+                            if(end > content.length){
+                                end = content.length;
+                            }
+                            var match_content = content.substring(start, end);
+                            // highlight all keywords
+                            keywords.forEach(function(keyword){
+                                var regS = new RegExp(keyword, "gi");
+                                match_content = match_content.replace(regS, "<b class=\"search-keyword\">"+keyword+"</b>");
+                            });
+
+                            str += "<p class=\"search-result\">" + match_content +"...</p>"
+                        }
+                        str += "</li>";
+                    }
+                })};
+                str += "</ul>";
+                if (matchcounts == 0) { str = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>' }
+                if (keywords == "") { str = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>' }
+                $resultContent.innerHTML = str;
+            });
+            proceedsearch();
+        }
+    });}
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched == false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+
+    });
+
+    $('.popup-btn-close').click(function(e){
+      $('.popup').hide();
+      $(".popoverlay").remove();
+      $('body').css('overflow', '');
+    });
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+  </script>
+
+
+  
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("BSwPKiNckzvJX4DpBuM5IM9Y-gzGzoHsz", "cRHrGaMhc9VOu2qDwkwSfrXx");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+</body>
+</html>

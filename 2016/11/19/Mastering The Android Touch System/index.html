@@ -1,0 +1,1048 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Android," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Goo's Tracks" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="内容概述 MotionEvent 概述  Android 如何传递触控事件？ Android 如何处理触控事件？ 具代表性的例子说明 拓展 - 注意事项、多点触控、Batching、Hover Events、Touch Delegate 干货推荐">
+<meta name="keywords" content="Android">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Android 触控事件解析">
+<meta property="og:url" content="http://yoursite.com/2016/11/19/Mastering The Android Touch System/index.html">
+<meta property="og:site_name" content="Goo's Tracks">
+<meta property="og:description" content="内容概述 MotionEvent 概述  Android 如何传递触控事件？ Android 如何处理触控事件？ 具代表性的例子说明 拓展 - 注意事项、多点触控、Batching、Hover Events、Touch Delegate 干货推荐">
+<meta property="og:image" content="http://odzvmv4ab.bkt.clouddn.com/Ignorant%20View%20Example.jpg">
+<meta property="og:image" content="http://odzvmv4ab.bkt.clouddn.com/Interested%20View%20Example.jpg">
+<meta property="og:image" content="http://odzvmv4ab.bkt.clouddn.com/Intercept%20Example.jpg">
+<meta property="og:updated_time" content="2016-11-19T11:48:02.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Android 触控事件解析">
+<meta name="twitter:description" content="内容概述 MotionEvent 概述  Android 如何传递触控事件？ Android 如何处理触控事件？ 具代表性的例子说明 拓展 - 注意事项、多点触控、Batching、Hover Events、Touch Delegate 干货推荐">
+<meta name="twitter:image" content="http://odzvmv4ab.bkt.clouddn.com/Ignorant%20View%20Example.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2016/11/19/Mastering The Android Touch System/"/>
+
+  <title> Android 触控事件解析 | Goo's Tracks </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//tajs.qq.com/stats?sId=58321747";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+  
+  
+    
+  
+  
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Goo's Tracks</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">记一段技术小足迹</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup">
+ <span class="search-icon fa fa-search"></span>
+ <input type="text" id="local-search-input">
+ <div id="local-search-result"></div>
+ <span class="popup-btn-close">close</span>
+</div>
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Android 触控事件解析
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-11-19T19:00:08+08:00" content="2016-11-19">
+              2016-11-19
+            </time>
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2016/11/19/Mastering The Android Touch System/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/11/19/Mastering The Android Touch System/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             <span id="/2016/11/19/Mastering The Android Touch System/" class="leancloud_visitors" data-flag-title="Android 触控事件解析">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="内容概述"><a href="#内容概述" class="headerlink" title="内容概述"></a>内容概述</h2><ul>
+<li><strong>MotionEvent</strong> 概述 </li>
+<li>Android <strong>如何传递</strong>触控事件？</li>
+<li>Android <strong>如何处理</strong>触控事件？</li>
+<li>具代表性的<strong>例子</strong>说明</li>
+<li><strong>拓展 - </strong>注意事项、多点触控、Batching、Hover Events、Touch Delegate</li>
+<li><strong>干货</strong>推荐 <a id="more"></a></li>
+</ul>
+<h2 id="MotionEvent"><a href="#MotionEvent" class="headerlink" title="MotionEvent"></a>MotionEvent</h2><p>Android 会把每一个触控事件包装成 MotionEvent，其中携带了许多自身事件带来的或额外的信息，包括 Touch 位置、时间、历史记录以及触控点数（屏幕上的手指数）等。</p>
+<p><strong>其中，事件类型包含：</strong></p>
+<ul>
+<li>ACTION_DOWN</li>
+<li>ACTION_UP</li>
+<li>ACTION_MOVE</li>
+<li>ACTION_POINTER_DOWN（屏幕上已有触控点，再按下其他触控点）</li>
+<li>ACTION_POINTER_UP（屏幕上当前有多个触控点，松开非最后一个点）</li>
+<li>ACTION_CANCEL<br><strong><br>注意：</strong>每一个触控事件都是：ACTION_DOWN 开始，ACTION_UP 结束。</li>
+</ul>
+<h2 id="Android-如何传递触控事件？"><a href="#Android-如何传递触控事件？" class="headerlink" title="Android 如何传递触控事件？"></a>Android 如何传递触控事件？</h2><p>触控事件会最先发送给前台顶端的 Activity ，最先获取触控事件的，是其中的 dispatchTouchEvent() 方法。</p>
+<p>事件通过上层 View 或 ViewGroup，调用各自的 dispatchTouchEvent() 方法，一直往下(子View)传递。而事件回传时，View 或者 ViewGroup 则会调用 onTouchEvent()方法。</p>
+<p><strong>小坑：</strong>既然 Activity 是触控事件传递的第一站，那么如果在 Activity 中的 onTouchEvent() 进行操作，那么会不会马上就可以检测到触控事件呢？然而，这样是<strong>错误的</strong>，实际上，Activity 中的 onTouchEvent() 方法是触控事件的终点，而如果传递过程中有 View 已经消耗了该事件，那么 Activity 中的 onTouchEvent() 方法则不会调用。</p>
+<p>处理触控事件的另外一种方式 - <strong>onTouchListener</strong>：与 onTouchEvent() 很相似，可以 return true 来消费触控事件；注意： onTouchListener 优先于 onTouchEvent() 进行消费</p>
+<h2 id="Android-如何处理触控事件？"><a href="#Android-如何处理触控事件？" class="headerlink" title="Android 如何处理触控事件？"></a>Android 如何处理触控事件？</h2><p>接收到触控事件后，Activity 自身 dispatchTouchEvent() 首先会传递给 RootView（大多数情况是 ViewGroup）,而 ViewGroup 会继续传递给其中的 childView，childView 又会继续传递给 childView 的 childView，如果整个过程都没有 View 消费触控事件，那么 Activity 的 onTouchEvent() 会是整个触控事件的终点</p>
+<h3 id="View-dispatchTouchEvent-方法"><a href="#View-dispatchTouchEvent-方法" class="headerlink" title="View.dispatchTouchEvent() 方法"></a>View.dispatchTouchEvent() 方法</h3><p>检查是否含有 onTouchListener ,如果有，则优先给 listener 处理；如果没有 onTouchListener 或者 listener 中没有对触控时间进行消费（没有 return true）,那么时间就会返回视图树的上层，给父控件处理。</p>
+<h3 id="ViewGroup-dispatchTouchEvent-方法"><a href="#ViewGroup-dispatchTouchEvent-方法" class="headerlink" title="ViewGroup.dispatchTouchEvent() 方法"></a>ViewGroup.dispatchTouchEvent() 方法</h3><p>对比 View ，更加复杂。</p>
+<ul>
+<li>对 childView 进行管理，处理事件时，需要对自身 childView 进行遍历，来找出可能对触控事件感兴趣的 view。<strong>实际上，</strong>GroupView 会根据触控位置来判断，如果触控位置在 childView 内部，说明触控事件与其相关；如果相关的 View 不止一个（即：有重叠），那么 ViewGroup 会逆序（加入 ViewGroup 的顺序的逆序，也就是从表层 View 到底层 View ）遍历 childView，其中的处理过程与普通的时间传递相同<br>。</li>
+<li>另外，ViewGroup 还会对触控事件进行中断或者窃取子 View 的触控事件，可以通过以下方法来实现： <strong>onInterceptTouchEvent(boolean flag) 方法</strong>来实现，该方法不断监测流入此 ViewGroup 的触控事件，监测目的在于：<strong>在某时间，结合对应手势，使 ViewGroup 停止事件分发（转而直接交给自己来处理事件）</strong>，例子： ScrollView（内部有一个 Button），当手指放到 Button 上，然后进行上下滑动，会发现手势交给了 ScrollView，并且开始滚动（ScrollView 优先于 Button 的响应）</li>
+<li>然而，ViewGroup 又有另外一个方法来打断 onInterceptTouchEvent() 方法的逻辑（childView 需要知道 parentView 是暂时屏蔽或是永久屏蔽触控事件），该方法便是<strong>“requestDisallowTouchIntercept()”</strong>,它可以中断 onInterceptTouchEvent() 方法，例子：ScrollView 内部有 childView 想要处理拖拽事件而不是交给ScrollView 处理；<strong>注意：</strong>需要针对特定手势来设置标识，而且对当前触控事件有效（ACTION_UP 意味着当前触控事件结束，下一次 ACTION_DOWN 会重置该标识，如果仍需要拦截，需要再次调用requestDisallowTouchIntercept()方法，也就是说，需要针对某个手势，每次都调用该方法去设置中断标识）。</li>
+</ul>
+<h2 id="流程演示"><a href="#流程演示" class="headerlink" title="流程演示"></a>流程演示</h2><p>一个 Activity 中有一个 FrameLayout(即 ViewGroup),其中又有一个 View，他们都不可点击（不会对触控事件进行任何处理，从而演示整个触控事件的传递过程）<br><img src="http://odzvmv4ab.bkt.clouddn.com/Ignorant%20View%20Example.jpg" alt=""></p>
+<ul>
+<li>ACTION_DOWN：从上往下进行触控事件分发，再从下往上判断触控事件处理方式（是否拦截）</li>
+<li>ACTION_MOVE/ACTION_UP：框架会认为，既然之前已经知道没有 View 对 ACTION_DOWN 感兴趣了，那么 ACTION_MOVE、ACTION_UP 也就不需要再分发了（直接在 Actvity 转一圈）。</li>
+</ul>
+<p>如果，将中间的 View 换成对触控事件有响应的 Button<br><img src="http://odzvmv4ab.bkt.clouddn.com/Interested%20View%20Example.jpg" alt=""></p>
+<ul>
+<li>ACTION_DOWN：依旧是同样的触控事件分发过程，但由于 Button 拦截了触控事件，即 Button 消费了本次触控事件，因此，本次触控事件在 Button 处结束</li>
+<li>ACTION_MOVE/ACTION_UP：所有的移动触控事件，从 MOVE 到UP，或者再放几根手指在上面（Button 上面），触控事件会走同样的流程，最终在 Button 上结束（当然，父控件的 onInterceptTouchEvent() 还是能监控事件的 ）</li>
+<li>照应上面的<strong>小坑</strong>：Activity 中的 onTouchEvent()是分发的终点，如果中途被消费，则就不会调用了</li>
+</ul>
+<p>如果，再把 FrameLayout 换成可以滚动的 ScrollView<br><img src="http://odzvmv4ab.bkt.clouddn.com/Intercept%20Example.jpg" alt=""><br>ACTION_DOWN：触控事件同样到达 Button 处被消费<br>ACTION_MOVW/ACTION_UP：按住 Button，然后手指开始在屏幕上滑动，然后松开手指;ScrollView 检测到滑动事件，事件分发线路发生了改变（本身 ViewGroup 的 dispatchTouchEvent() 方法会把事件分发给内部的 childView，但 ScrollView 的 onInterceptTouchEvent() 方法返回 true，则 ViewGroup 就直接把事件发送给自身的 onTouchEvent() 而不是继续递归调用 childView 的dispatchTouchEvent() 方法 ），ScrollView （即ViewGroup）会直接截获触控事件，当然，触控位置也会随之从 Button 内部的坐标转换为自身内部的坐标。</p>
+<p>注意：其实 Button 也会收到 ACTION_CANCEL 这一触控事件。因为当 ACTION_MOVE 触控手势被检测到时候，Button 上的触控事件会被窃取，系统需要让 Button 知道，它已经不能再接收任何触控事件了，于是给 Button 发送 ACTION_CANCEL，所以，在一个 ScrollView 中的 Button，点击它，再进行上下滑动，再松开，Button 并没有触发点击事件。 通常 ACTION_CANCEL、ACTION_UP 通常用于结束当前手势触控事件。</p>
+<h2 id="ViewConfiguration-类"><a href="#ViewConfiguration-类" class="headerlink" title="ViewConfiguration 类"></a>ViewConfiguration 类</h2><p>该类携带许多供框架使用的常量，开发者需要在程序中使用这些常量，来使得你的事件处理与系统的处理一致。其中大多数都是与触控相关的，当然也会有与画图或者其他方面相关的常量存在，下面，挑几个相对重要的常量进行介绍。</p>
+<h3 id="getScaledTouchSlop-方法"><a href="#getScaledTouchSlop-方法" class="headerlink" title="getScaledTouchSlop() 方法"></a>getScaledTouchSlop() 方法</h3><p>概述：touchSlop 是一个定义的值，此值用于跟触控事件作比较，从而决定能否从轻触转换为拖拽。</p>
+<p>如果你将手指放置于屏幕，尽可能的不移动，但被触控到的 View 还是会收到很多 ACTION_MOVE 事件，因为手指很容易颤动，细微的振动，系统为了探知手指位置，会产生大量的 ACTION_MOVE 事件，尽管用户根本没有移动手指。此时，touchSlop 开始发挥作用了，系统会将手指移动距离与 touchSlop 常量作对比，从而判断该动作为轻触还是移动。</p>
+<h3 id="fling"><a href="#fling" class="headerlink" title="fling"></a>fling</h3><p>用于判断当手指离开屏幕时候，屏幕应该滚动还是停止。通常我们都会有一种体验，快速滑动 ScrollView ，往往控件会再继续滚动一会。那么系统是如何进行判断的呢？</p>
+<p>当手指以移动状态离开屏幕（没有停下），并且速度比系统定义的 fling 值大，系统框架就会认为此手势是 fling，可滚动控件就会根据手指移动速度进行相应的滚动，当然，系统也会有一个最大 fling 速度，当用户手指速度超过该速度时，控件的滚动速度达到最大，而不会再加快。</p>
+<h3 id="scaledPagingTouchSlop"><a href="#scaledPagingTouchSlop" class="headerlink" title="scaledPagingTouchSlop"></a>scaledPagingTouchSlop</h3><p>该常量常用于 ViewPager，与 touchSlop(ScaleTouchSlop) 区分开，这里的 touchSlop 指的是横向翻页的 touchSlop ，不同于一般的滑动 touchSlop，当然，这并不是说明所有横向的 slop 都使用这一常量。</p>
+<p><strong>问题来了，为什么要设置两种 Slop </strong>：主要是因为考虑到，当 ScrollView 嵌套与 ViewPager 中，该如何使得两者较好的工作，因此，需要 x、y轴上分别有两种不同的 Slop 检查，从而判断出用户想上下滚动还是侧滑</p>
+<h3 id="系统常量的好处"><a href="#系统常量的好处" class="headerlink" title="系统常量的好处"></a>系统常量的好处</h3><p>这些常量与屏幕分辨率无关，类似于 dp ，它们根据不同的屏幕密度来进行缩放，大大方便了开发者写出与系统行为相互适应的 App </p>
+<h2 id="处理触控事件的注意事项"><a href="#处理触控事件的注意事项" class="headerlink" title="处理触控事件的注意事项"></a>处理触控事件的注意事项</h2><p>例子：屏幕上有两个 Button A、B，现在想要做到一种效果，用户点击 A ,但在 B 做出点击响应，而用户点击 B 时候，则是 A 做出响应，即：想 A 把触控事件传递给 B，B 把触控事件传递给 A 。</p>
+<p>一般的想法：在 A 按钮触控事件处理中（dispatch 或者 onTouchEvent 方法）调用 B 按钮的 onTouchEvent 方法来处理事件。技术角度上，确实可行，但如果这么做，整个事件响应链的剩余部分会在此处被避开了。因为在 View 的 dispatch 方法中，还做了许多其他不必要的事情。</p>
+<p>最佳且最适当的做法：顺应系统事件分发链来做，当事件传进来，调用另一个 View 的 dispatch 方法。</p>
+<h3 id="onInterceptTouchEvent"><a href="#onInterceptTouchEvent" class="headerlink" title="onInterceptTouchEvent()"></a>onInterceptTouchEvent()</h3><p>事件传递过程中，每个 View 都会先检查该方法的返回值，只要 ViewGroup 中的该方法返回 false ，事件才会走正常的传递链，而如果该方法返回 true，那么当前手势所有的后继触控事件都会直接传递给当前 ViewGroup 的 onTouchEvent() 事件，而本来会接收到触控事件目标 View 会收到 ACTION_CANCEL，这一过程是不可逆的，另外，值得注意的是，onInterceptTouchEvent() 作用是一次性的，需要每次针对特定方法调用该方法才能每次生效。</p>
+<p>因此，ViewGroup 一旦把触控事件拦截了，那么就必须处理整个事件，而不能只处理一部分事件，然后把事件还回去。<strong>结论：除非完全处理事件，否则不要拦截事件</strong>。</p>
+<h3 id="尽可能地把不需要处理的事件传递给父类"><a href="#尽可能地把不需要处理的事件传递给父类" class="headerlink" title="尽可能地把不需要处理的事件传递给父类"></a>尽可能地把不需要处理的事件传递给父类</h3><p>View 中的 onTouchEvent() 方法实际上是做了许多操作来维护 View 自身的状态的（pressed、checked…），如果拦截了所有的事件，那么 View 自身的状态维护功能就会丢失，而开发者往往摸不着头脑，因此，与其直接返回 true 或者 false ，不如直接返回一个对父类的调用。</p>
+<h3 id="注意使用-Slop-常量进行检查"><a href="#注意使用-Slop-常量进行检查" class="headerlink" title="注意使用 Slop 常量进行检查"></a>注意使用 Slop 常量进行检查</h3><p>处理 ACTION_MOVE 的时候，需要使用该常量来判断用户是否真正想要移动，还是只是在轻触屏幕</p>
+<h3 id="考虑如何处理-ACTION-CANCEL-事件类型"><a href="#考虑如何处理-ACTION-CANCEL-事件类型" class="headerlink" title="考虑如何处理 ACTION_CANCEL 事件类型"></a>考虑如何处理 ACTION_CANCEL 事件类型</h3><p>大多数情况下，ACTION_CANCEL、ACTION_UP 是放在一起处理的，当时也会有情况会造成两者不同时出现的情况，例如，最常见的：用户手指弹起导致的 ACTION_UP，或者 ACTION_CANCEL 是由于 View 中事件被窃取而产生的（上文提及的：ScrollView 与 Button 滚动的情况）。当 ACTION_CANCEL 与 ACTION_UP 没有同时出现的时候，就可能需要将它们分开处理了（尽管大多数情况下，放在一起处理也是没有什么问题的，主要的操作是：重置 View 的状态）</p>
+<h2 id="多点触控的处理"><a href="#多点触控的处理" class="headerlink" title="多点触控的处理"></a>多点触控的处理</h2><p>首先需要明确的是，不论是单点还是多点触控，都是遵循系统触控框架的调用流程的，整个分发过程上，两者没有任何不同，唯一不同的仅仅在于系统报告的触控点数量超过了 1 。</p>
+<h3 id="MotionEvent-getPointerCount"><a href="#MotionEvent-getPointerCount" class="headerlink" title="MotionEvent.getPointerCount()"></a>MotionEvent.getPointerCount()</h3><p>该方法会根据每个事件，读出当前有几个触控点正在设备跟踪记录，但设备记录的有效触控点数可能会有限，当超过设备支持的触控点数时，设备的有效追踪点数，当然就不会再增加了。</p>
+<h3 id="ACTION-POINTER-DOWN-与-ACTION-POINTER-UP"><a href="#ACTION-POINTER-DOWN-与-ACTION-POINTER-UP" class="headerlink" title="ACTION_POINTER_DOWN 与 ACTION_POINTER_UP"></a>ACTION_POINTER_DOWN 与 ACTION_POINTER_UP</h3><p>当用户放了 1 根手指在屏幕上，再继续放第 2、3、4 根手指时候，那么此时触发的就是 ACTION_POINTER_DOWN，而松开手指时候，触发的是 ACTION_POINTER_UP，直到只剩下 1 根手指在屏幕上，最后 1 根手指松开时候，触发 ACTION_UP</p>
+<p>系统会为屏幕上的每个触控点设置一个 index 与 id，开发者可使用其来对整个手势每个触控点做跟踪记录。</p>
+<p>index 可变而 id 不可变，假设：当用户放 3 根手指在屏幕上，index 与 id 分别为0，1，2；0，1，2。而用户松开了一根手指（id 为 1 的触控点消失）后，index 与 id 可能就会变成 0，1；0，2。 index 更多的是与屏幕上当前触控点相关（还剩多少个触控点），而 id 仅仅作为触控点的标记（针对某个触控点进行相关操作）</p>
+<p>注意：通常，触控点减少时，系统默认会把<strong>在减少的触控点上的后续触控事件</strong>传递到前一个 index 的触控点上。</p>
+<h2 id="Batching-批量处理"><a href="#Batching-批量处理" class="headerlink" title="Batching 批量处理"></a>Batching 批量处理</h2><p>通常，设备实际产生的触控事件往往产生的比你相像的要多很多（由硬件以及内核驱动而产生），尽管用户只是在屏幕上轻轻滑动一下。因此，View 实际上并没有检测到每一个单独的事件，而是获取到批量处理后的结果（成批事件处理中的最后一个事件）</p>
+<p>如果因为某种原因，你需要对系统生成的每一个事件都做检测或者想得到每一个单独事件，那可能需要用这些方法来构建（MotionEvent 类中的方法）：</p>
+<ul>
+<li>获取当前最新事件信息： getX()、getY()、getEventTime() </li>
+<li>ACTION_MOVE 过程中获取的触控事件：getHistoricalX()、getHistoricalY()、getHistoricalEventTime()；getHistoricalSize() – 获取 batched events 数量</li>
+</ul>
+<h2 id="Hover-Events-悬浮事件"><a href="#Hover-Events-悬浮事件" class="headerlink" title="Hover Events 悬浮事件"></a>Hover Events 悬浮事件</h2><p>API 14（Android 4.0）之后加入：ACTION_HOVER_ENTER、ACTION_HOVER_EXIT、ACTION_HOVER_MOVE，当然，这些都是 MotionEvent 类之中的定义的。</p>
+<p>部分设备，例如：SAMSUNG 的手机部分就支持悬浮操作，或者是在 Android 设备上接入鼠标，鼠标悬浮在特定的 View 上面，就会触发悬浮事件，事件分发流程与普通触控事件一致。</p>
+<p><strong>而不同之处：</strong>回调函数与普通触控事件的<strong>回调函数</strong>不一样，这些事件不会在 onTouchEvent 中检测到<br>，而是在 View.onGenericMotionEvent() 方法中，或者设置 View.onGenericMotionEventListener ，虽然方法传入的参数与普通触控事件在 onTouchEvent 中传入的参数并无差异。我们可以这么认为：系统想要将悬浮事件与触控事件分开处理，所以特地分出了特殊处理的方法，而整个事件分发流程实质上是相同的。</p>
+<p><strong>注意：</strong>系统默认是<strong>没有</strong>处理<strong>悬浮事件</strong>的，需要靠用户来自行定制。</p>
+<h2 id="Touch-Delegate-触摸代理"><a href="#Touch-Delegate-触摸代理" class="headerlink" title="Touch Delegate 触摸代理"></a>Touch Delegate 触摸代理</h2><p><strong>设计目的：</strong>允许父视图去定义一个特定的触摸区域，而在这个触摸区域中，所接收到的所有事件会向前传递给某个 childView。</p>
+<p><strong>应用例子：</strong>假如 ListView 中有一些图标太小以至于难以触摸，但又希望用户能点击时。可以使用触摸代理来定义一个区域，把此区域的所有触摸事件传递给那个很小的图标。（这种情况，其实完全可以直接把图标设置大一些，例如：Padding属性，这样更加简单快捷；触摸代理主要是针对一些无法简单扩大的 View 范围，不得不这么做的情况）</p>
+<h2 id="资源推荐"><a href="#资源推荐" class="headerlink" title="资源推荐"></a>资源推荐</h2><ul>
+<li><a href="&quot;http://v.youku.com/v_show/id_XODQ1MjI2MDQ0.html&quot;">视频 - Mastering the Android Touch System</a></li>
+<li><a href="&quot;https://github.com/devunwired/custom-touch-examples&quot;">Github - 演示 Demo </a><br><strong>Examples include:</strong><ul>
+<li>Overriding onTouchEvent()</li>
+<li>Overriding onInterceptTouchEvent()</li>
+<li>GestureDetector</li>
+<li>ScaleGestureDetector</li>
+<li>TouchDelegate</li>
+</ul>
+</li>
+</ul>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+    <div>感谢您的阅读，希望文章对您有所帮助</div>
+    <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+      <span>赏</span>
+    </button>
+    <div id="QR" style="display: none;">
+      
+        <div id="wechat" style="display: inline-block">
+          <img id="wechat_qr" src="/images/wechatpay.png" alt="Goo WeChat Pay"/>
+          <p>微信打赏</p>
+        </div>
+      
+      
+        <div id="alipay" style="display: inline-block">
+          <img id="alipay_qr" src="/images/alipay.png" alt="Goo Alipay"/>
+          <p>支付宝打赏</p>
+        </div>
+      
+    </div>
+  </div>
+
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Android/" rel="tag">#Android</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/11/25/Java 自动内存管理机制/" rel="next" title="Java进阶 - JVM 内存管理机制探秘">
+                <i class="fa fa-chevron-left"></i> Java进阶 - JVM 内存管理机制探秘
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/11/07/Android网络编程 - TCP、UDP/" rel="prev" title="Android网络编程 - TCP/IP协议实践">
+                Android网络编程 - TCP/IP协议实践 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <div class="ds-share flat" data-thread-key="2016/11/19/Mastering The Android Touch System/"
+     data-title="Android 触控事件解析"
+     data-content=""
+     data-url="http://yoursite.com/2016/11/19/Mastering The Android Touch System/">
+  <div class="ds-share-inline">
+    <ul  class="ds-share-icons-16">
+
+      <li data-toggle="ds-share-icons-more"><a class="ds-more" href="javascript:void(0);">分享到：</a></li>
+      <li><a class="ds-weibo" href="javascript:void(0);" data-service="weibo">微博</a></li>
+      <li><a class="ds-qzone" href="javascript:void(0);" data-service="qzone">QQ空间</a></li>
+      <li><a class="ds-qqt" href="javascript:void(0);" data-service="qqt">腾讯微博</a></li>
+      <li><a class="ds-wechat" href="javascript:void(0);" data-service="wechat">微信</a></li>
+
+    </ul>
+    <div class="ds-share-icons-more">
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2016/11/19/Mastering The Android Touch System/"
+           data-title="Android 触控事件解析" data-url="http://yoursite.com/2016/11/19/Mastering The Android Touch System/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/icon.png"
+               alt="Goo" />
+          <p class="site-author-name" itemprop="name">Goo</p>
+          <p class="site-description motion-element" itemprop="description">沿路走到这里，尽量不要后退</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">15</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">12</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/Goo-Yao" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://www.jianshu.com/u/21d2303e41a6" target="_blank" title="简书">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  简书
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#内容概述"><span class="nav-number">1.</span> <span class="nav-text">内容概述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#MotionEvent"><span class="nav-number">2.</span> <span class="nav-text">MotionEvent</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Android-如何传递触控事件？"><span class="nav-number">3.</span> <span class="nav-text">Android 如何传递触控事件？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Android-如何处理触控事件？"><span class="nav-number">4.</span> <span class="nav-text">Android 如何处理触控事件？</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#View-dispatchTouchEvent-方法"><span class="nav-number">4.1.</span> <span class="nav-text">View.dispatchTouchEvent() 方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ViewGroup-dispatchTouchEvent-方法"><span class="nav-number">4.2.</span> <span class="nav-text">ViewGroup.dispatchTouchEvent() 方法</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#流程演示"><span class="nav-number">5.</span> <span class="nav-text">流程演示</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ViewConfiguration-类"><span class="nav-number">6.</span> <span class="nav-text">ViewConfiguration 类</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#getScaledTouchSlop-方法"><span class="nav-number">6.1.</span> <span class="nav-text">getScaledTouchSlop() 方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#fling"><span class="nav-number">6.2.</span> <span class="nav-text">fling</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#scaledPagingTouchSlop"><span class="nav-number">6.3.</span> <span class="nav-text">scaledPagingTouchSlop</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#系统常量的好处"><span class="nav-number">6.4.</span> <span class="nav-text">系统常量的好处</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#处理触控事件的注意事项"><span class="nav-number">7.</span> <span class="nav-text">处理触控事件的注意事项</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#onInterceptTouchEvent"><span class="nav-number">7.1.</span> <span class="nav-text">onInterceptTouchEvent()</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#尽可能地把不需要处理的事件传递给父类"><span class="nav-number">7.2.</span> <span class="nav-text">尽可能地把不需要处理的事件传递给父类</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#注意使用-Slop-常量进行检查"><span class="nav-number">7.3.</span> <span class="nav-text">注意使用 Slop 常量进行检查</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#考虑如何处理-ACTION-CANCEL-事件类型"><span class="nav-number">7.4.</span> <span class="nav-text">考虑如何处理 ACTION_CANCEL 事件类型</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#多点触控的处理"><span class="nav-number">8.</span> <span class="nav-text">多点触控的处理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#MotionEvent-getPointerCount"><span class="nav-number">8.1.</span> <span class="nav-text">MotionEvent.getPointerCount()</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ACTION-POINTER-DOWN-与-ACTION-POINTER-UP"><span class="nav-number">8.2.</span> <span class="nav-text">ACTION_POINTER_DOWN 与 ACTION_POINTER_UP</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Batching-批量处理"><span class="nav-number">9.</span> <span class="nav-text">Batching 批量处理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Hover-Events-悬浮事件"><span class="nav-number">10.</span> <span class="nav-text">Hover Events 悬浮事件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Touch-Delegate-触摸代理"><span class="nav-number">11.</span> <span class="nav-text">Touch Delegate 触摸代理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#资源推荐"><span class="nav-number">12.</span> <span class="nav-text">资源推荐</span></a></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Goo</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.0.1"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"goo-tracks"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+    <script src="/lib/ua-parser-js/dist/ua-parser.min.js?v=0.7.9"></script>
+    <script src="/js/src/hook-duoshuo.js"></script>
+  
+
+
+
+
+
+
+  
+  
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length == 0) {
+       search_path = "search.xml";
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    function proceedsearch() {
+      $("body").append('<div class="popoverlay">').css('overflow', 'hidden');
+      $('.popup').toggle();
+
+    }
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+    'use strict';
+    $.ajax({
+        url: path,
+        dataType: "xml",
+        async: true,
+        success: function( xmlResponse ) {
+            // get the contents from search data
+            isfetched = true;
+            $('.popup').detach().appendTo('.header-inner');
+            var datas = $( "entry", xmlResponse ).map(function() {
+                return {
+                    title: $( "title", this ).text(),
+                    content: $("content",this).text(),
+                    url: $( "url" , this).text()
+                };
+            }).get();
+            var $input = document.getElementById(search_id);
+            var $resultContent = document.getElementById(content_id);
+            $input.addEventListener('input', function(){
+                var matchcounts = 0;
+                var str='<ul class=\"search-result-list\">';
+                var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                $resultContent.innerHTML = "";
+                if (this.value.trim().length > 1) {
+                // perform local searching
+                datas.forEach(function(data) {
+                    var isMatch = true;
+                    var content_index = [];
+                    var data_title = data.title.trim().toLowerCase();
+                    var data_content = data.content.trim().replace(/<[^>]+>/g,"").toLowerCase();
+                    var data_url = data.url;
+                    var index_title = -1;
+                    var index_content = -1;
+                    var first_occur = -1;
+                    // only match artiles with not empty titles and contents
+                    if(data_title != '' && data_content != '') {
+                        keywords.forEach(function(keyword, i) {
+                            index_title = data_title.indexOf(keyword);
+                            index_content = data_content.indexOf(keyword);
+                            if( index_title < 0 && index_content < 0 ){
+                                isMatch = false;
+                            } else {
+                                if (index_content < 0) {
+                                    index_content = 0;
+                                }
+                                if (i == 0) {
+                                    first_occur = index_content;
+                                }
+                            }
+                        });
+                    }
+                    // show search results
+                    if (isMatch) {
+                        matchcounts += 1;
+                        str += "<li><a href='"+ data_url +"' class='search-result-title'>"+ data_title +"</a>";
+                        var content = data.content.trim().replace(/<[^>]+>/g,"");
+                        if (first_occur >= 0) {
+                            // cut out 100 characters
+                            var start = first_occur - 20;
+                            var end = first_occur + 80;
+                            if(start < 0){
+                                start = 0;
+                            }
+                            if(start == 0){
+                                end = 50;
+                            }
+                            if(end > content.length){
+                                end = content.length;
+                            }
+                            var match_content = content.substring(start, end);
+                            // highlight all keywords
+                            keywords.forEach(function(keyword){
+                                var regS = new RegExp(keyword, "gi");
+                                match_content = match_content.replace(regS, "<b class=\"search-keyword\">"+keyword+"</b>");
+                            });
+
+                            str += "<p class=\"search-result\">" + match_content +"...</p>"
+                        }
+                        str += "</li>";
+                    }
+                })};
+                str += "</ul>";
+                if (matchcounts == 0) { str = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>' }
+                if (keywords == "") { str = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>' }
+                $resultContent.innerHTML = str;
+            });
+            proceedsearch();
+        }
+    });}
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched == false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+
+    });
+
+    $('.popup-btn-close').click(function(e){
+      $('.popup').hide();
+      $(".popoverlay").remove();
+      $('body').css('overflow', '');
+    });
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+  </script>
+
+
+  
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("BSwPKiNckzvJX4DpBuM5IM9Y-gzGzoHsz", "cRHrGaMhc9VOu2qDwkwSfrXx");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+</body>
+</html>

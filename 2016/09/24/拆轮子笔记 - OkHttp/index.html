@@ -1,0 +1,1076 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="源码分析,拆轮子笔记," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Goo's Tracks" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="前言用了那么久的OkHttp，解决了不少的联网问题。对于热门的好轮子，总不能一直停留在会用这个层面上吧，是时候动手拆拆轮子，学习一下其中的原理。本文主要记录笔者通过各种网络学习资源及OkHttp源码的过程，希望通过自身学习研究的过程，给其他同学提供一些参考与帮助，如有不足，恳请指教。">
+<meta name="keywords" content="源码分析,拆轮子笔记">
+<meta property="og:type" content="article">
+<meta property="og:title" content="拆轮子笔记 - OkHttp">
+<meta property="og:url" content="http://yoursite.com/2016/09/24/拆轮子笔记 - OkHttp/index.html">
+<meta property="og:site_name" content="Goo's Tracks">
+<meta property="og:description" content="前言用了那么久的OkHttp，解决了不少的联网问题。对于热门的好轮子，总不能一直停留在会用这个层面上吧，是时候动手拆拆轮子，学习一下其中的原理。本文主要记录笔者通过各种网络学习资源及OkHttp源码的过程，希望通过自身学习研究的过程，给其他同学提供一些参考与帮助，如有不足，恳请指教。">
+<meta property="og:image" content="http://odzvmv4ab.bkt.clouddn.com/okhttp_full_process.png">
+<meta property="og:updated_time" content="2016-10-09T11:28:08.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="拆轮子笔记 - OkHttp">
+<meta name="twitter:description" content="前言用了那么久的OkHttp，解决了不少的联网问题。对于热门的好轮子，总不能一直停留在会用这个层面上吧，是时候动手拆拆轮子，学习一下其中的原理。本文主要记录笔者通过各种网络学习资源及OkHttp源码的过程，希望通过自身学习研究的过程，给其他同学提供一些参考与帮助，如有不足，恳请指教。">
+<meta name="twitter:image" content="http://odzvmv4ab.bkt.clouddn.com/okhttp_full_process.png">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2016/09/24/拆轮子笔记 - OkHttp/"/>
+
+  <title> 拆轮子笔记 - OkHttp | Goo's Tracks </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//tajs.qq.com/stats?sId=58321747";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+  
+  
+    
+  
+  
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Goo's Tracks</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">记一段技术小足迹</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup">
+ <span class="search-icon fa fa-search"></span>
+ <input type="text" id="local-search-input">
+ <div id="local-search-result"></div>
+ <span class="popup-btn-close">close</span>
+</div>
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                拆轮子笔记 - OkHttp
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-09-24T18:01:06+08:00" content="2016-09-24">
+              2016-09-24
+            </time>
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2016/09/24/拆轮子笔记 - OkHttp/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/09/24/拆轮子笔记 - OkHttp/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             <span id="/2016/09/24/拆轮子笔记 - OkHttp/" class="leancloud_visitors" data-flag-title="拆轮子笔记 - OkHttp">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>用了那么久的OkHttp，解决了不少的联网问题。对于热门的好轮子，总不能一直停留在会用这个层面上吧，是时候动手拆拆轮子，学习一下其中的原理。本文主要记录笔者通过各种网络学习资源及<a href="&quot;https://github.com/square/okhttp&quot;">OkHttp源码</a>的过程，希望通过自身学习研究的过程，给其他同学提供一些参考与帮助，如有不足，恳请指教。<a id="more"></a></p>
+<ul>
+<li>本文记录基于 OkHttp 3.4.1 源码的学习分析过程。</li>
+<li>笔者水平有限，内容可能基于学习资源，当然也会有个人的一些见解加入其中，仅作个人笔记用途，同时也试图探索学习如何入手拆轮子的好方法推荐给各位，如有侵权，马上删除。<h2 id="学习资源"><a href="#学习资源" class="headerlink" title="学习资源"></a>学习资源</h2></li>
+<li><a href="&quot;http://blog.piasy.com/2016/07/11/Understand-OkHttp/&quot;">Piasy - 拆轮子系列：拆 OkHttp</a></li>
+<li><a href="&quot;http://www.jianshu.com/p/b68b928d7213&quot;">简书 - 拆轮子系列之OKHttp-上层架构</a></li>
+<li><a href="&quot;http://www.jianshu.com/p/aad5aacd79bf&quot;">简书 - OkHttp3源码分析[综述]</a></li>
+<li><a href="&quot;http://frodoking.github.io/2015/03/12/android-okhttp/&quot;">Frodo - OkHttp源码解析</a></li>
+<li><a href="&quot;http://frodoking.github.io/2015/06/29/android-okhttp-connectionpool-http1-x-http2-x/&quot;">Frodo - OKHttp源码解析-ConnectionPool对Connection重用机制&amp;Http/Https/SPDY协议选择</a></li>
+</ul>
+<h2 id="学习记录"><a href="#学习记录" class="headerlink" title="学习记录"></a>学习记录</h2><h3 id="跟随Piasy-拆轮子（学习资源-第一篇）"><a href="#跟随Piasy-拆轮子（学习资源-第一篇）" class="headerlink" title="跟随Piasy 拆轮子（学习资源 - 第一篇）"></a><a href="&quot;http://blog.piasy.com/2016/07/11/Understand-OkHttp/&quot;">跟随Piasy 拆轮子（学习资源 - 第一篇）</a></h3><h4 id="阅读心得："><a href="#阅读心得：" class="headerlink" title="阅读心得："></a>阅读心得：</h4><ol>
+<li>从最实际的基本使用方法进行拓展、步步深入分析</li>
+<li>没有过多深入到细节进行解析，进阶知识需要继续钻研</li>
+<li>是带领大家入手拆轮子的好文章。（强烈建议各位边阅读边看源码，更加有助于理解其中的实现方式！）</li>
+<li>再次感谢 Piasy 大神</li>
+</ol>
+<h4 id="文章知识点："><a href="#文章知识点：" class="headerlink" title="文章知识点："></a>文章知识点：</h4><ol>
+<li>关注 OkHttp 整体工作流程，结合源码解析了“创建 OkHttpClient 对象”、“发起 HTTP 请求”、“同步网络请求”、“异步网络请求”等使用方法</li>
+<li>详解了其中应用的核心设计模式：责任链模式</li>
+<li>分析了 OkHttp 如何“建立连接”、“发送和接收数据”、“发起异步网络请求”、“获取返回数据”、“Http缓存”</li>
+</ol>
+<h4 id="学习笔记："><a href="#学习笔记：" class="headerlink" title="学习笔记："></a>学习笔记：</h4><p>  这里贴出笔者阅读文章时，看源码的顺序与结合理解的注解。</p>
+<ol>
+<li>从 OkHttp 创建对象使用方法入手<br><code>OkHttpClient client = new OkHttpClient();</code></li>
+<li><p>进入构造方法，发现内部会创建 Builder</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//构造方法中已初始化 Builder</span></div><div class="line"><span class="function"><span class="keyword">public</span> <span class="title">OkHttpClient</span><span class="params">()</span> </span>&#123;</div><div class="line">  <span class="keyword">this</span>(<span class="keyword">new</span> Builder());</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+</li>
+<li><p>建造者模式？进入 OkHttpClient.Builder 构造方法一探究竟，直接创建的 OkHttpClient 会默认使用基本配置。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="title">Builder</span><span class="params">()</span> </span>&#123;</div><div class="line">  dispatcher = <span class="keyword">new</span> Dispatcher();</div><div class="line">  protocols = DEFAULT_PROTOCOLS;</div><div class="line">  connectionSpecs = DEFAULT_CONNECTION_SPECS;</div><div class="line">  proxySelector = ProxySelector.getDefault();</div><div class="line">  cookieJar = CookieJar.NO_COOKIES;</div><div class="line">  socketFactory = SocketFactory.getDefault();</div><div class="line">  hostnameVerifier = OkHostnameVerifier.INSTANCE;</div><div class="line">  certificatePinner = CertificatePinner.DEFAULT;</div><div class="line">  proxyAuthenticator = Authenticator.NONE;</div><div class="line">  authenticator = Authenticator.NONE;</div><div class="line">  connectionPool = <span class="keyword">new</span> ConnectionPool();</div><div class="line">  dns = Dns.SYSTEM;</div><div class="line">  followSslRedirects = <span class="keyword">true</span>;</div><div class="line">  followRedirects = <span class="keyword">true</span>;</div><div class="line">  retryOnConnectionFailure = <span class="keyword">true</span>;</div><div class="line">  connectTimeout = <span class="number">10_000</span>;</div><div class="line">  readTimeout = <span class="number">10_000</span>;</div><div class="line">  writeTimeout = <span class="number">10_000</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+</li>
+<li><p>接下来，看看发起 Http 请求 OkHttp 用法。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="function">String <span class="title">run</span><span class="params">(String url)</span> <span class="keyword">throws</span> IOException </span>&#123;</div><div class="line">  <span class="comment">//构造请求体</span></div><div class="line">  Request request = <span class="keyword">new</span> Request.Builder()</div><div class="line">      .url(url)</div><div class="line">      .build();	</div><div class="line">  <span class="comment">//发起请求核心代码</span></div><div class="line">  Response response = client.newCall(request).execute();</div><div class="line">  <span class="keyword">return</span> response.body().string();</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+</li>
+<li><p>方法解析：client.newCall(request) - 根据请求创建新的 Call 类</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Override</span> <span class="function"><span class="keyword">public</span> Call <span class="title">newCall</span><span class="params">(Request request)</span> </span>&#123;</div><div class="line">  <span class="comment">//实际构造并返回 RealCall 对象</span></div><div class="line">  <span class="keyword">return</span> <span class="keyword">new</span> RealCall(<span class="keyword">this</span>, request);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+</li>
+<li><p>方法解析：client.newCall(request).execute() - 执行请求</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Override</span> </div><div class="line"><span class="function"><span class="keyword">public</span> Response <span class="title">execute</span><span class="params">()</span> <span class="keyword">throws</span> IOException </span>&#123;</div><div class="line">    <span class="keyword">synchronized</span> (<span class="keyword">this</span>) &#123;</div><div class="line">      <span class="keyword">if</span> (executed) <span class="keyword">throw</span> <span class="keyword">new</span> IllegalStateException(<span class="string">"Already Executed"</span>);</div><div class="line">      executed = <span class="keyword">true</span>;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">try</span> &#123;</div><div class="line">      client.dispatcher().executed(<span class="keyword">this</span>);</div><div class="line">      Response result = getResponseWithInterceptorChain();</div><div class="line">      <span class="keyword">if</span> (result == <span class="keyword">null</span>) <span class="keyword">throw</span> <span class="keyword">new</span> IOException(<span class="string">"Canceled"</span>);</div><div class="line">      <span class="keyword">return</span> result;</div><div class="line">    &#125; <span class="keyword">finally</span> &#123;</div><div class="line">      client.dispatcher().finished(<span class="keyword">this</span>);</div><div class="line">    &#125;</div><div class="line">  &#125;</div></pre></td></tr></table></figure>
+<p>上述代码主要做了4件事：</p>
+<ol>
+<li>判断是否被执行 - 说明每个call只能被执行一次；另：可通过clone方法得到一个完全一样的Call（该方法是 Object类的方法）</li>
+<li><p>利用client.dispatcher().executed(this)</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//dispatcher()方法返回 dispatcher ，异步http请求策略(内部使用 ExecutorService 实现)</span></div><div class="line"><span class="function"><span class="keyword">public</span> Dispatcher <span class="title">dispatcher</span><span class="params">()</span> </span>&#123;</div><div class="line">   <span class="keyword">return</span> dispatcher;</div><div class="line"> &#125;</div></pre></td></tr></table></figure>
+</li>
+<li><p>调用 getResponseWithInterceptorChain() 获取Http返回结果(InterceptorChain - 拦截链? 一系列拦截操作待分析)  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//方法解析：构建一个完整的 interceptors List，最后利用该 list 构建 Interceptor.Chain</span></div><div class="line"><span class="function"><span class="keyword">private</span> Response <span class="title">getResponseWithInterceptorChain</span><span class="params">()</span> <span class="keyword">throws</span> IOException </span>&#123;</div><div class="line">    <span class="comment">// Build a full stack of interceptors.</span></div><div class="line">    List&lt;Interceptor&gt; interceptors = <span class="keyword">new</span> ArrayList&lt;&gt;();</div><div class="line">	<span class="comment">//1.添加 client 携带的所有 interceptors （配置 OkHttpClient 时候用户设置的 interceptors ）</span></div><div class="line">    interceptors.addAll(client.interceptors());</div><div class="line">	<span class="comment">//2.添加 retryAndFollowUpInterceptor （负责失败重试以及重定性）</span></div><div class="line">    interceptors.add(retryAndFollowUpInterceptor);</div><div class="line">	<span class="comment">//3.添加由 client.cookieJar() 构建的 BridgeInterceptor（负责把用户构造的请求转换为发送到服务器的请求、把服务器返回的相应转换为用户友好响应 - 即客户端与服务器端沟通的桥梁）</span></div><div class="line">    interceptors.add(<span class="keyword">new</span> BridgeInterceptor(client.cookieJar()));</div><div class="line">	<span class="comment">//4.添加由 client.internalCache() 构建的 CacheInterceptor （负责读取缓存直接返回、更新缓存）</span></div><div class="line">    interceptors.add(<span class="keyword">new</span> CacheInterceptor(client.internalCache()));</div><div class="line">	<span class="comment">//5.添加由 client 构建的 ConnectInterceptor （负责与服务器建立连接）</span></div><div class="line">    interceptors.add(<span class="keyword">new</span> ConnectInterceptor(client));</div><div class="line">	<span class="comment">//如果 forWebSocket 则添加 client 携带的所有 networkInterceptors（配置OkHttpClient 时候用户设置的 networkInterceptors）</span></div><div class="line">    <span class="keyword">if</span> (!retryAndFollowUpInterceptor.isForWebSocket()) &#123;</div><div class="line">      interceptors.addAll(client.networkInterceptors());</div><div class="line">    &#125;</div><div class="line">	<span class="comment">//添加 CallServerInterceptor （负责向服务器发送给请求数据、从服务器读取响应数据）</span></div><div class="line">    interceptors.add(<span class="keyword">new</span> CallServerInterceptor(</div><div class="line">        retryAndFollowUpInterceptor.isForWebSocket()));</div><div class="line">	<span class="comment">//构建 Interceptor.Chain ，最后调用 chain.proceed(originalRequest)，第7点有解析</span></div><div class="line">    Interceptor.Chain chain = <span class="keyword">new</span> RealInterceptorChain(</div><div class="line">        interceptors, <span class="keyword">null</span>, <span class="keyword">null</span>, <span class="keyword">null</span>, <span class="number">0</span>, originalRequest);</div><div class="line">    <span class="keyword">return</span> chain.proceed(originalRequest);</div><div class="line">  &#125;</div></pre></td></tr></table></figure>
+<ul>
+<li><strong>“责任链模式”科普（百度百科）</strong>：在责任链模式里，很多对象由每一个对象对其下家的引用而连接起来形成一条链。请求在这个链上传递，直到链上的某一个对象决定处理此请求。发出这个请求的客户端并不知道链上的哪一个对象最终处理这个请求，这使得系统可以在不影响客户端的情况下动态地重新组织和分配责任。</li>
+<li><strong>“责任链模式”科普（维基百科）</strong>：它包含了一些命令对象和一系列的处理对象，每一个处理对象决定它能处理哪些命令对象，它也知道如何将它不能处理的命令对象传递给该链中的下一个处理对象。该模式还描述了往该处理链的末尾添加新的处理对象的方法。</li>
+<li><strong>总结</strong>：拦截链中，每个Interceptor都可处理 Request，返回 Response。运行时，顺着拦截链，让每个Interceptor 自行决定是否处理以及怎么处理（不处理则交给下一个Interceptor ），这样，可将处理网络请求从 RealCall 类中剥离，简化了各自责任与逻辑</li>
+<li><strong>另</strong>：责任链模式 在 Android 有着许多典型应用，例：view的点击事件分发（Android源码设计模式一书中有提及）</li>
+</ul>
+</li>
+<li>dispatcher 如果try{}没有抛出异常，并且 result != null（则不执行return，下面的finally才执行），最后还会通知 dispatcher 操作完成</li>
+</ol>
+</li>
+<li><p>所以拦截链是如何工作的？ 方法解析 - chain.proceed(originalRequest)</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> Response <span class="title">proceed</span><span class="params">(Request request, StreamAllocation streamAllocation, HttpStream httpStream,</span></span></div><div class="line">      Connection connection) <span class="keyword">throws</span> IOException &#123;</div><div class="line">	<span class="comment">//首先需要各种判错</span></div><div class="line">    <span class="keyword">if</span> (index &gt;= interceptors.size()) <span class="keyword">throw</span> <span class="keyword">new</span> AssertionError();</div><div class="line">    calls++;</div><div class="line">    <span class="comment">// If we already have a stream, confirm that the incoming request will use it.</span></div><div class="line">    <span class="keyword">if</span> (<span class="keyword">this</span>.httpStream != <span class="keyword">null</span> &amp;&amp; !sameConnection(request.url())) &#123;</div><div class="line">      <span class="keyword">throw</span> <span class="keyword">new</span> IllegalStateException(<span class="string">"network interceptor "</span> + interceptors.get(index - <span class="number">1</span>)</div><div class="line">          + <span class="string">" must retain the same host and port"</span>);</div><div class="line">    &#125;</div><div class="line">    <span class="comment">// If we already have a stream, confirm that this is the only call to chain.proceed().</span></div><div class="line">    <span class="keyword">if</span> (<span class="keyword">this</span>.httpStream != <span class="keyword">null</span> &amp;&amp; calls &gt; <span class="number">1</span>) &#123;</div><div class="line">      <span class="keyword">throw</span> <span class="keyword">new</span> IllegalStateException(<span class="string">"network interceptor "</span> + interceptors.get(index - <span class="number">1</span>)</div><div class="line">          + <span class="string">" must call proceed() exactly once"</span>);</div><div class="line">    &#125;</div><div class="line">	<span class="comment">//然后再调用拦截链中的拦截器，最终得到 response</span></div><div class="line">    <span class="comment">// Call the next interceptor in the chain.</span></div><div class="line">    RealInterceptorChain next = <span class="keyword">new</span> RealInterceptorChain(</div><div class="line">        interceptors, streamAllocation, httpStream, connection, index + <span class="number">1</span>, request);</div><div class="line">    Interceptor interceptor = interceptors.get(index);</div><div class="line">    Response response = interceptor.intercept(next);</div><div class="line">	<span class="comment">//保证拦截链调用逻辑无误</span></div><div class="line">    <span class="comment">// Confirm that the next interceptor made its required call to chain.proceed().</span></div><div class="line">    <span class="keyword">if</span> (httpStream != <span class="keyword">null</span> &amp;&amp; index + <span class="number">1</span> &lt; interceptors.size() &amp;&amp; next.calls != <span class="number">1</span>) &#123;</div><div class="line">      <span class="keyword">throw</span> <span class="keyword">new</span> IllegalStateException(<span class="string">"network interceptor "</span> + interceptor</div><div class="line">          + <span class="string">" must call proceed() exactly once"</span>);</div><div class="line">    &#125;</div><div class="line">    <span class="comment">// Confirm that the intercepted response isn't null.</span></div><div class="line">    <span class="keyword">if</span> (response == <span class="keyword">null</span>) &#123;</div><div class="line">      <span class="keyword">throw</span> <span class="keyword">new</span> NullPointerException(<span class="string">"interceptor "</span> + interceptor + <span class="string">" returned null"</span>);</div><div class="line">    &#125;</div><div class="line">	<span class="comment">//返回 response</span></div><div class="line">    <span class="keyword">return</span> response;</div><div class="line">  &#125;</div></pre></td></tr></table></figure>
+</li>
+<li><p>明白拦截链的整体工作流程后，那么 OkHttp 又如何与服务器进行实际通信的呢？这里需要分析 CallServerInterceptor 拦截器。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//负责与目标服务器连接、将请求传递给下一个拦截器</span></div><div class="line"><span class="comment">/** Opens a connection to the target server and proceeds to the next interceptor. */</span></div><div class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">ConnectInterceptor</span> <span class="keyword">implements</span> <span class="title">Interceptor</span> </span>&#123;</div><div class="line">  <span class="keyword">public</span> <span class="keyword">final</span> OkHttpClient client;</div><div class="line">  <span class="function"><span class="keyword">public</span> <span class="title">ConnectInterceptor</span><span class="params">(OkHttpClient client)</span> </span>&#123;</div><div class="line">    <span class="keyword">this</span>.client = client; </div><div class="line">  &#125;</div><div class="line">  <span class="comment">//核心方法</span></div><div class="line">  <span class="meta">@Override</span> </div><div class="line">  <span class="function"><span class="keyword">public</span> Response <span class="title">intercept</span><span class="params">(Chain chain)</span> <span class="keyword">throws</span> IOException </span>&#123;</div><div class="line">    RealInterceptorChain realChain = (RealInterceptorChain) chain;</div><div class="line">    Request request = realChain.request();</div><div class="line">    StreamAllocation streamAllocation = realChain.streamAllocation();</div><div class="line">    <span class="comment">// We need the network to satisfy this request. Possibly for validating a conditional GET.</span></div><div class="line">    <span class="keyword">boolean</span> doExtensiveHealthChecks = !request.method().equals(<span class="string">"GET"</span>);</div><div class="line">	<span class="comment">//创建 HttpStream（接口） 对象这里的实现类是 Http2xStream、Http1xStream 分别对应 HTTP/1.1 和 HTTP2 版本</span></div><div class="line">	<span class="comment">//两者源码有点长，需要交给读者们自行深究，其中使用了 Okio 对 Socket 读写操作进行封装</span></div><div class="line">	<span class="comment">//Okio 可暂时认为是对 java.io、java.nio 进行封装，提供更高效的IO操作</span></div><div class="line">    HttpStream httpStream = streamAllocation.newStream(client, doExtensiveHealthChecks);</div><div class="line">    RealConnection connection = streamAllocation.connection();</div><div class="line">    <span class="keyword">return</span> realChain.proceed(request, streamAllocation, httpStream, connection);</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+</li>
+</ol>
+<p>另外，创建 HttpStream 对象还涉及 StreamAllocation、RealConnection 对象。<br>由于篇幅过长，这里不贴出源码，给出总体创建思路：找到可用的RealConnection，再利用 RealConnection 的输入输出（BufferedSource、BufferedSink）创建 HttpStream 对象。<br>9.接下来，来弄懂 OkHttp 如何发送、接收数据，需要分析拦截链中最后一个拦截器 CallServerInterceptor<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//拦截链中最后一个拦截器，负责向服务器发送给请求数据、从服务器读取响应数据</span></div><div class="line"><span class="comment">/** This is the last interceptor in the chain. It makes a network call to the server. */</span></div><div class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">CallServerInterceptor</span> <span class="keyword">implements</span> <span class="title">Interceptor</span> </span>&#123;</div><div class="line">  <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">boolean</span> forWebSocket;</div><div class="line">  <span class="function"><span class="keyword">public</span> <span class="title">CallServerInterceptor</span><span class="params">(<span class="keyword">boolean</span> forWebSocket)</span> </span>&#123;</div><div class="line">    <span class="keyword">this</span>.forWebSocket = forWebSocket;</div><div class="line">  &#125;</div><div class="line">  <span class="meta">@Override</span> <span class="function"><span class="keyword">public</span> Response <span class="title">intercept</span><span class="params">(Chain chain)</span> <span class="keyword">throws</span> IOException </span>&#123;</div><div class="line">    HttpStream httpStream = ((RealInterceptorChain) chain).httpStream();</div><div class="line">    StreamAllocation streamAllocation = ((RealInterceptorChain) chain).streamAllocation();</div><div class="line">    Request request = chain.request();</div><div class="line">    <span class="keyword">long</span> sentRequestMillis = System.currentTimeMillis();</div><div class="line">	<span class="comment">//1、写入要发送的 Http Request Headers</span></div><div class="line">    httpStream.writeRequestHeaders(request);</div><div class="line">	<span class="comment">//2、如果请求方法允许，且 request.body 不为空，就加上一个body</span></div><div class="line">    <span class="keyword">if</span> (HttpMethod.permitsRequestBody(request.method()) &amp;&amp; request.body() != <span class="keyword">null</span>) &#123;</div><div class="line">      <span class="comment">//得到一个能传输 request body 的output stream</span></div><div class="line"> 	  Sink requestBodyOut = httpStream.createRequestBody(request, request.body().contentLength());</div><div class="line">      <span class="comment">//利用 Okio 将 requestBodyOut 写入，得到 bufferedRequestBody</span></div><div class="line">	  BufferedSink bufferedRequestBody = Okio.buffer(requestBodyOut);</div><div class="line">	  <span class="comment">//将 request body 写入到 bufferedRequestBody</span></div><div class="line">      request.body().writeTo(bufferedRequestBody);</div><div class="line">      bufferedRequestBody.close();</div><div class="line">    &#125;</div><div class="line">	<span class="comment">//刷新 request 到 socket</span></div><div class="line">    httpStream.finishRequest();</div><div class="line">	<span class="comment">//构造新的 Response 对象</span></div><div class="line">    Response response = httpStream.readResponseHeaders()</div><div class="line">        .request(request)</div><div class="line">        .handshake(streamAllocation.connection().handshake())</div><div class="line">        .sentRequestAtMillis(sentRequestMillis)</div><div class="line">        .receivedResponseAtMillis(System.currentTimeMillis())</div><div class="line">        .build();</div><div class="line">    <span class="keyword">if</span> (!forWebSocket || response.code() != <span class="number">101</span>) &#123;</div><div class="line">      response = response.newBuilder()</div><div class="line">          .body(httpStream.openResponseBody(response))</div><div class="line">          .build();</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">if</span> (<span class="string">"close"</span>.equalsIgnoreCase(response.request().header(<span class="string">"Connection"</span>))</div><div class="line">        || <span class="string">"close"</span>.equalsIgnoreCase(response.header(<span class="string">"Connection"</span>))) &#123;</div><div class="line">      streamAllocation.noNewStreams();</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">int</span> code = response.code();</div><div class="line">    <span class="keyword">if</span> ((code == <span class="number">204</span> || code == <span class="number">205</span>) &amp;&amp; response.body().contentLength() &gt; <span class="number">0</span>) &#123;</div><div class="line">      <span class="keyword">throw</span> <span class="keyword">new</span> ProtocolException(</div><div class="line">          <span class="string">"HTTP "</span> + code + <span class="string">" had non-zero Content-Length: "</span> + response.body().contentLength());</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> response;</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<ul>
+<li>核心工作基本由 HttpStream 完成（旧版本该类原名：HttpCodec ），利用了 Okio ，而 Okio 实际上还是使用了 Socket。</li>
+<li>分析（来源于Piasy 拆OkHttp）：InterceptorChain 设计是一种分层思想，每层只关注自己的责任（单一责任原则），各层间通过约定的接口/协议进行合作，共同完成负责任务</li>
+</ul>
+<ol>
+<li><p>初步学习了同步请求后，再从 OkHttp 异步网络请求用法中入手 OkHttp 异步网络请求的原理吧</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//核心方法 - enqueue</span></div><div class="line">client.newCall(request).enqueue(<span class="keyword">new</span> Callback() &#123;</div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onFailure</span><span class="params">(Call call, IOException e)</span> </span>&#123;</div><div class="line">    &#125;</div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onResponse</span><span class="params">(Call call, Response response)</span> <span class="keyword">throws</span> IOException </span>&#123;</div><div class="line">        System.out.println(response.body().string());</div><div class="line">    &#125;</div><div class="line">&#125;);</div></pre></td></tr></table></figure>
+</li>
+<li><p>进一步研究 RealCall.enqueue 方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//源码 - RealCall.enqueue</span></div><div class="line"><span class="meta">@Override</span> </div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">enqueue</span><span class="params">(Callback responseCallback)</span> </span>&#123;</div><div class="line">  <span class="comment">//同步锁，如果已经执行会抛出异常</span></div><div class="line">  <span class="keyword">synchronized</span> (<span class="keyword">this</span>) &#123;</div><div class="line">    <span class="keyword">if</span> (executed) <span class="keyword">throw</span> <span class="keyword">new</span> IllegalStateException(<span class="string">"Already Executed"</span>);</div><div class="line">    executed = <span class="keyword">true</span>;</div><div class="line">  &#125;</div><div class="line">  <span class="comment">//关键调用 - Dispatcher.enqueue</span></div><div class="line">  client.dispatcher().enqueue(<span class="keyword">new</span> AsyncCall(responseCallback));</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+</li>
+<li><p>继续深入，方法解析 - Dispatcher.enqueue</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//概述：同步方法，如果当前还能执行一个并发请求，则加入 runningAsyncCalls ，立即执行，否则加入 readyAsyncCalls 队列</span></div><div class="line"><span class="function"><span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">enqueue</span><span class="params">(AsyncCall call)</span> </span>&#123;</div><div class="line">  <span class="keyword">if</span> (runningAsyncCalls.size() &lt; maxRequests &amp;&amp; runningCallsForHost(call) &lt; maxRequestsPerHost) &#123;</div><div class="line">    runningAsyncCalls.add(call);</div><div class="line">    executorService().execute(call);</div><div class="line">  &#125; <span class="keyword">else</span> &#123;</div><div class="line">    readyAsyncCalls.add(call);</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<ul>
+<li>方法中涉及 AsyncCall 类 - RealCall 的一个内部类，它实现了 Runnable，因此可以提交到 ExecutorService 上执行</li>
+<li>它在执行时会调用 getResponseWithInterceptorChain() 函数，并把结果通过 responseCallback 传递给上层使用者</li>
+<li><strong>总结</strong>：同步请求跟异步请求的原理基本一致，最后都是调用 getResponseWithInterceptorChain() 函数，利用拦截链来实现的网络请求逻辑，只是实现方式不同，异步请求需要通过 ExecutorService 来调用getResponseWithInterceptorChain。</li>
+</ul>
+</li>
+<li>原来同步、异步请求有着异曲同工之妙，探究完 OkHttp 请求发送，当然要继续探究下返回数据的获取啦。<ul>
+<li>完成同步或是异步的请求后，我们就可以从 Response 对象中获取到相应数据了，而其中值得注意的，也是最重要的，便是 body 部分了，因为一般服务器返回的数据较大，必须通过数据流的方式来访问。</li>
+<li>响应 body 被封装到 ResponseBody 类中，需要注意两点：<ul>
+<li>每个 body 只能被消费一次，多次消费会出现异常</li>
+<li>body 必须被关闭，否则会资源泄漏</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>最后再来看看 Http 缓存，需要探究 CacheInterceptor 拦截器</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//在 ConnectInterceptor 之前添加的一个拦截器，也就是说，在建立连接之前需要看看是否有可用缓存，如果可以则直接返回缓存，否则就继续建立网络连接等操作</span></div><div class="line"><span class="comment">//代码较长、这里贴出核心部分(OkHttp 缓存处理逻辑)</span></div><div class="line"><span class="meta">@Override</span> </div><div class="line"><span class="function"><span class="keyword">public</span> Response <span class="title">intercept</span><span class="params">(Chain chain)</span> <span class="keyword">throws</span> IOException </span>&#123;</div><div class="line">   ...</div><div class="line">	<span class="comment">//无可用缓存，放弃</span></div><div class="line">    <span class="keyword">if</span> (cacheCandidate != <span class="keyword">null</span> &amp;&amp; cacheResponse == <span class="keyword">null</span>) &#123;</div><div class="line">      closeQuietly(cacheCandidate.body()); <span class="comment">// The cache candidate wasn't applicable. Close it.</span></div><div class="line">    &#125;</div><div class="line">	<span class="comment">//有可用缓存，但被强制要求联网，那交给下个拦截器，继续联网了</span></div><div class="line">    <span class="comment">// If we're forbidden from using the network and the cache is insufficient, fail.</span></div><div class="line">    <span class="keyword">if</span> (networkRequest == <span class="keyword">null</span> &amp;&amp; cacheResponse == <span class="keyword">null</span>) &#123;</div><div class="line">      <span class="keyword">return</span> <span class="keyword">new</span> Response.Builder()</div><div class="line">          .request(chain.request())</div><div class="line">          .protocol(Protocol.HTTP_1_1)</div><div class="line">          .code(<span class="number">504</span>)</div><div class="line">          .message(<span class="string">"Unsatisfiable Request (only-if-cached)"</span>)</div><div class="line">          .body(EMPTY_BODY)</div><div class="line">          .sentRequestAtMillis(-<span class="number">1L</span>)</div><div class="line">          .receivedResponseAtMillis(System.currentTimeMillis())</div><div class="line">          .build();</div><div class="line">    &#125;</div><div class="line">	<span class="comment">//不需要联网，返回缓存</span></div><div class="line">    <span class="comment">// If we don't need the network, we're done.</span></div><div class="line">    <span class="keyword">if</span> (networkRequest == <span class="keyword">null</span>) &#123;</div><div class="line">      <span class="keyword">return</span> cacheResponse.newBuilder()</div><div class="line">          .cacheResponse(stripBody(cacheResponse))</div><div class="line">          .build();</div><div class="line">    &#125;</div><div class="line">    Response networkResponse = <span class="keyword">null</span>;</div><div class="line">    <span class="keyword">try</span> &#123;</div><div class="line">      networkResponse = chain.proceed(networkRequest);</div><div class="line">    &#125; <span class="keyword">finally</span> &#123;</div><div class="line">	  <span class="comment">//不管成不成功，都要记得关闭 cache body，避免内存泄漏</span></div><div class="line">      <span class="comment">// If we're crashing on I/O or otherwise, don't leak the cache body.</span></div><div class="line">      <span class="keyword">if</span> (networkResponse == <span class="keyword">null</span> &amp;&amp; cacheCandidate != <span class="keyword">null</span>) &#123;</div><div class="line">        closeQuietly(cacheCandidate.body());</div><div class="line">      &#125;</div><div class="line">    &#125;</div><div class="line">	<span class="comment">//如果有缓存响应，就进行相应的获取</span></div><div class="line">    <span class="comment">// If we have a cache response too, then we're doing a conditional get.</span></div><div class="line">    <span class="keyword">if</span> (cacheResponse != <span class="keyword">null</span>) &#123;</div><div class="line">      <span class="keyword">if</span> (validate(cacheResponse, networkResponse)) &#123;</div><div class="line">        Response response = cacheResponse.newBuilder()</div><div class="line">            .headers(combine(cacheResponse.headers(), networkResponse.headers()))</div><div class="line">            .cacheResponse(stripBody(cacheResponse))</div><div class="line">            .networkResponse(stripBody(networkResponse))</div><div class="line">            .build();</div><div class="line">        networkResponse.body().close();</div><div class="line">		<span class="comment">//更新缓存</span></div><div class="line">        <span class="comment">// Update the cache after combining headers but before stripping the</span></div><div class="line">        <span class="comment">// Content-Encoding header (as performed by initContentStream()).</span></div><div class="line">        cache.trackConditionalCacheHit();</div><div class="line">        cache.update(cacheResponse, response);</div><div class="line">        <span class="keyword">return</span> response;</div><div class="line">      &#125; <span class="keyword">else</span> &#123;</div><div class="line">        closeQuietly(cacheResponse.body());</div><div class="line">      &#125;</div><div class="line">    &#125;</div><div class="line">	...</div><div class="line">    <span class="keyword">return</span> response;</div><div class="line">  &#125;</div></pre></td></tr></table></figure>
+</li>
+<li><p>关于 OkHttp 内部的缓存实际实现？</p>
+<ul>
+<li>实现方式：主要涉及 HTTP 协议缓存细节的实现，而具体的缓存逻辑 OkHttp 内置封装了一个 Cache 类，它利用 DiskLruCache，用磁盘上的有限大小空间进行缓存，按照 LRU 算法进行缓存淘汰。（源码略长，需要各位自行查看钻研）</li>
+<li>InternalCache（接口），我们可以实现该接口，使用我们自定义的缓存策略</li>
+</ul>
+</li>
+</ol>
+<h4 id="知识总结-For-跟随Piasy-拆轮子"><a href="#知识总结-For-跟随Piasy-拆轮子" class="headerlink" title="知识总结 - For 跟随Piasy 拆轮子"></a>知识总结 - For 跟随Piasy 拆轮子</h4><p> 最后，再回头看看 Piasy 画的流程图，将知识串起来</p>
+<p> <img src="http://odzvmv4ab.bkt.clouddn.com/okhttp_full_process.png" alt="Piasy - OkHttp 整体流程图"></p>
+<ul>
+<li>核心方法：getResponseWithInterceptorChain - 拦截链模式（《Android 源码设计模式》 一书中有讲解），层层分明，单一责任</li>
+<li>同步、异步请求差异？（异步通过提交到 ExecutorService 来实现，最终还是离不开 getResponseWithInterceptorChain 方法）</li>
+<li>其中的提及到的重点拦截器：<ul>
+<li>retryAndFollowUpInterceptor（负责失败重试以及重定向）</li>
+<li>BridgeInterceptor（负责把用户构造的请求转换为发送到服务器的请求、把服务器返回的相应转换为用户友好响应）</li>
+<li>CacheInterceptor（负责读取缓存直接返回、更新缓存）</li>
+<li>ConnectInterceptor（负责与服务器建立连接）</li>
+<li>CallServerInterceptor（负责向服务器发送给请求数据、从服务器读取响应数据）</li>
+</ul>
+</li>
+</ul>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+    <div>感谢您的阅读，希望文章对您有所帮助</div>
+    <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+      <span>赏</span>
+    </button>
+    <div id="QR" style="display: none;">
+      
+        <div id="wechat" style="display: inline-block">
+          <img id="wechat_qr" src="/images/wechatpay.png" alt="Goo WeChat Pay"/>
+          <p>微信打赏</p>
+        </div>
+      
+      
+        <div id="alipay" style="display: inline-block">
+          <img id="alipay_qr" src="/images/alipay.png" alt="Goo Alipay"/>
+          <p>支付宝打赏</p>
+        </div>
+      
+    </div>
+  </div>
+
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/源码分析/" rel="tag">#源码分析</a>
+          
+            <a href="/tags/拆轮子笔记/" rel="tag">#拆轮子笔记</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/09/27/A星启发式寻路算法/" rel="next" title="启发式搜索 - 有趣而神奇的 A* 算法">
+                <i class="fa fa-chevron-left"></i> 启发式搜索 - 有趣而神奇的 A* 算法
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/09/04/Android-WebView全面总结/" rel="prev" title="Android WebView全面总结">
+                Android WebView全面总结 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <div class="ds-share flat" data-thread-key="2016/09/24/拆轮子笔记 - OkHttp/"
+     data-title="拆轮子笔记 - OkHttp"
+     data-content=""
+     data-url="http://yoursite.com/2016/09/24/拆轮子笔记 - OkHttp/">
+  <div class="ds-share-inline">
+    <ul  class="ds-share-icons-16">
+
+      <li data-toggle="ds-share-icons-more"><a class="ds-more" href="javascript:void(0);">分享到：</a></li>
+      <li><a class="ds-weibo" href="javascript:void(0);" data-service="weibo">微博</a></li>
+      <li><a class="ds-qzone" href="javascript:void(0);" data-service="qzone">QQ空间</a></li>
+      <li><a class="ds-qqt" href="javascript:void(0);" data-service="qqt">腾讯微博</a></li>
+      <li><a class="ds-wechat" href="javascript:void(0);" data-service="wechat">微信</a></li>
+
+    </ul>
+    <div class="ds-share-icons-more">
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2016/09/24/拆轮子笔记 - OkHttp/"
+           data-title="拆轮子笔记 - OkHttp" data-url="http://yoursite.com/2016/09/24/拆轮子笔记 - OkHttp/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/icon.png"
+               alt="Goo" />
+          <p class="site-author-name" itemprop="name">Goo</p>
+          <p class="site-description motion-element" itemprop="description">沿路走到这里，尽量不要后退</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">15</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">12</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/Goo-Yao" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://www.jianshu.com/u/21d2303e41a6" target="_blank" title="简书">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  简书
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#学习资源"><span class="nav-number">2.</span> <span class="nav-text">学习资源</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#学习记录"><span class="nav-number">3.</span> <span class="nav-text">学习记录</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#跟随Piasy-拆轮子（学习资源-第一篇）"><span class="nav-number">3.1.</span> <span class="nav-text">跟随Piasy 拆轮子（学习资源 - 第一篇）</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#阅读心得："><span class="nav-number">3.1.1.</span> <span class="nav-text">阅读心得：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#文章知识点："><span class="nav-number">3.1.2.</span> <span class="nav-text">文章知识点：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#学习笔记："><span class="nav-number">3.1.3.</span> <span class="nav-text">学习笔记：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#知识总结-For-跟随Piasy-拆轮子"><span class="nav-number">3.1.4.</span> <span class="nav-text">知识总结 - For 跟随Piasy 拆轮子</span></a></li></ol></li></ol></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Goo</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.0.1"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"goo-tracks"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+    <script src="/lib/ua-parser-js/dist/ua-parser.min.js?v=0.7.9"></script>
+    <script src="/js/src/hook-duoshuo.js"></script>
+  
+
+
+
+
+
+
+  
+  
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length == 0) {
+       search_path = "search.xml";
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    function proceedsearch() {
+      $("body").append('<div class="popoverlay">').css('overflow', 'hidden');
+      $('.popup').toggle();
+
+    }
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+    'use strict';
+    $.ajax({
+        url: path,
+        dataType: "xml",
+        async: true,
+        success: function( xmlResponse ) {
+            // get the contents from search data
+            isfetched = true;
+            $('.popup').detach().appendTo('.header-inner');
+            var datas = $( "entry", xmlResponse ).map(function() {
+                return {
+                    title: $( "title", this ).text(),
+                    content: $("content",this).text(),
+                    url: $( "url" , this).text()
+                };
+            }).get();
+            var $input = document.getElementById(search_id);
+            var $resultContent = document.getElementById(content_id);
+            $input.addEventListener('input', function(){
+                var matchcounts = 0;
+                var str='<ul class=\"search-result-list\">';
+                var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                $resultContent.innerHTML = "";
+                if (this.value.trim().length > 1) {
+                // perform local searching
+                datas.forEach(function(data) {
+                    var isMatch = true;
+                    var content_index = [];
+                    var data_title = data.title.trim().toLowerCase();
+                    var data_content = data.content.trim().replace(/<[^>]+>/g,"").toLowerCase();
+                    var data_url = data.url;
+                    var index_title = -1;
+                    var index_content = -1;
+                    var first_occur = -1;
+                    // only match artiles with not empty titles and contents
+                    if(data_title != '' && data_content != '') {
+                        keywords.forEach(function(keyword, i) {
+                            index_title = data_title.indexOf(keyword);
+                            index_content = data_content.indexOf(keyword);
+                            if( index_title < 0 && index_content < 0 ){
+                                isMatch = false;
+                            } else {
+                                if (index_content < 0) {
+                                    index_content = 0;
+                                }
+                                if (i == 0) {
+                                    first_occur = index_content;
+                                }
+                            }
+                        });
+                    }
+                    // show search results
+                    if (isMatch) {
+                        matchcounts += 1;
+                        str += "<li><a href='"+ data_url +"' class='search-result-title'>"+ data_title +"</a>";
+                        var content = data.content.trim().replace(/<[^>]+>/g,"");
+                        if (first_occur >= 0) {
+                            // cut out 100 characters
+                            var start = first_occur - 20;
+                            var end = first_occur + 80;
+                            if(start < 0){
+                                start = 0;
+                            }
+                            if(start == 0){
+                                end = 50;
+                            }
+                            if(end > content.length){
+                                end = content.length;
+                            }
+                            var match_content = content.substring(start, end);
+                            // highlight all keywords
+                            keywords.forEach(function(keyword){
+                                var regS = new RegExp(keyword, "gi");
+                                match_content = match_content.replace(regS, "<b class=\"search-keyword\">"+keyword+"</b>");
+                            });
+
+                            str += "<p class=\"search-result\">" + match_content +"...</p>"
+                        }
+                        str += "</li>";
+                    }
+                })};
+                str += "</ul>";
+                if (matchcounts == 0) { str = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>' }
+                if (keywords == "") { str = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>' }
+                $resultContent.innerHTML = str;
+            });
+            proceedsearch();
+        }
+    });}
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched == false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+
+    });
+
+    $('.popup-btn-close').click(function(e){
+      $('.popup').hide();
+      $(".popoverlay").remove();
+      $('body').css('overflow', '');
+    });
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+  </script>
+
+
+  
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("BSwPKiNckzvJX4DpBuM5IM9Y-gzGzoHsz", "cRHrGaMhc9VOu2qDwkwSfrXx");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+</body>
+</html>

@@ -1,0 +1,1045 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="源码分析,拆轮子笔记," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Goo's Tracks" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="前言相信点开文章的你，多少也知道或者使用过Retrofit框架吧。如果你有一颗想对源码一探究竟的心，却不知如何入手。笔者一直也有这样的困惑，也正在努力总结出一套有效的分析源码方法，希望本文的拆轮子思路能给你带来一些帮助。">
+<meta name="keywords" content="源码分析,拆轮子笔记">
+<meta property="og:type" content="article">
+<meta property="og:title" content="拆轮子系列 - 如何由浅入深探索 Retrofit 源码？">
+<meta property="og:url" content="http://yoursite.com/2017/01/15/拆轮子系列 - Retrofit/index.html">
+<meta property="og:site_name" content="Goo's Tracks">
+<meta property="og:description" content="前言相信点开文章的你，多少也知道或者使用过Retrofit框架吧。如果你有一颗想对源码一探究竟的心，却不知如何入手。笔者一直也有这样的困惑，也正在努力总结出一套有效的分析源码方法，希望本文的拆轮子思路能给你带来一些帮助。">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/1513860-e5d7b7ad70dc5a37.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/1513860-c760c0ae59e266c4.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:updated_time" content="2017-01-15T08:48:22.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="拆轮子系列 - 如何由浅入深探索 Retrofit 源码？">
+<meta name="twitter:description" content="前言相信点开文章的你，多少也知道或者使用过Retrofit框架吧。如果你有一颗想对源码一探究竟的心，却不知如何入手。笔者一直也有这样的困惑，也正在努力总结出一套有效的分析源码方法，希望本文的拆轮子思路能给你带来一些帮助。">
+<meta name="twitter:image" content="http://upload-images.jianshu.io/upload_images/1513860-e5d7b7ad70dc5a37.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2017/01/15/拆轮子系列 - Retrofit/"/>
+
+  <title> 拆轮子系列 - 如何由浅入深探索 Retrofit 源码？ | Goo's Tracks </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//tajs.qq.com/stats?sId=58321747";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+  
+  
+    
+  
+  
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Goo's Tracks</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">记一段技术小足迹</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup">
+ <span class="search-icon fa fa-search"></span>
+ <input type="text" id="local-search-input">
+ <div id="local-search-result"></div>
+ <span class="popup-btn-close">close</span>
+</div>
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                拆轮子系列 - 如何由浅入深探索 Retrofit 源码？
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-01-15T16:42:06+08:00" content="2017-01-15">
+              2017-01-15
+            </time>
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2017/01/15/拆轮子系列 - Retrofit/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/01/15/拆轮子系列 - Retrofit/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             <span id="/2017/01/15/拆轮子系列 - Retrofit/" class="leancloud_visitors" data-flag-title="拆轮子系列 - 如何由浅入深探索 Retrofit 源码？">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>相信点开文章的你，多少也知道或者使用过Retrofit框架吧。如果你有一颗想对源码一探究竟的心，却不知如何入手。笔者一直也有这样的困惑，也正在努力总结出一套有效的分析源码方法，希望本文的拆轮子思路能给你带来一些帮助。<a id="more"></a></p>
+<p>本文记录了笔者基于 <a href="https://github.com/square/retrofit" target="_blank" rel="external">Retrofit 2.1.0</a> 源码的学习分析过程，文中拆解思路很大程度受到<a href="http://www.jianshu.com/u/6e4c6553a7f9" target="_blank" rel="external">Stay4it</a>所制作的教程启发（良心教程，文末有链接，配合视频食用本文效果更佳），故跟随该教程结合自身见解进行一番记录，如有错漏，恳请指正。</p>
+<p><strong>探索方式：</strong></p>
+<ol>
+<li>学会用该框架，动手写Demo，理解框架应用场景，基本特点（前提）。</li>
+<li>利用网络资源，搜寻多篇前人写过的拆轮子资源，下载源码，跟随资源进行源码跟踪，如果不动手，我认为是很难将框架理解的。</li>
+<li>阅读源码时，学会总结：从Retrofit一般使用方式入手，通过断点调试，观察源码执行顺序，忽略非重要代码，摸清源码主线实现思路后，再深入探索其中的细节实现。</li>
+<li>回顾与整理，最后再过一遍思路，若走通了，那么框架的大概就理解了，同时整理笔记，便于日后忘了回来查看。</li>
+</ol>
+<h2 id="网络请求框架的基本流程"><a href="#网络请求框架的基本流程" class="headerlink" title="网络请求框架的基本流程"></a>网络请求框架的基本流程</h2><p><img src="http://upload-images.jianshu.io/upload_images/1513860-e5d7b7ad70dc5a37.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt=""></p>
+<ol>
+<li>构建Request，入队</li>
+<li>进入Executor执行，Looper不断循环，拿到Request执行</li>
+<li>执行结果的解析与返回</li>
+</ol>
+<h2 id="Retrofit-概述（WHAT）"><a href="#Retrofit-概述（WHAT）" class="headerlink" title="Retrofit 概述（WHAT）"></a>Retrofit 概述（WHAT）</h2><p>一个在Android/Java平台上运行的type-safe HTTP Client，其中type-safe是通过声明泛型来保证的，支持RxJava，解耦程度高，基于 Retrofit 2.0.1,当前最新版2.1.0，即将出版2.2.0。（2017.1.）</p>
+<h3 id="构建Request"><a href="#构建Request" class="headerlink" title="构建Request"></a>构建Request</h3><p>Retrofit通过注解来构建Request,所有的参数都可以简单配置完毕，上层不需要关心底层使用何种方式实现构建Request过程。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">GitHubService</span> </span>&#123;</div><div class="line">  <span class="meta">@GET</span>(<span class="string">"users/&#123;user&#125;/repos"</span>)</div><div class="line">  Call&lt;List&lt;Repo&gt;&gt; listRepos(<span class="meta">@Path</span>(<span class="string">"user"</span>) String user);</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h3 id="实现Executor"><a href="#实现Executor" class="headerlink" title="实现Executor"></a>实现Executor</h3><p>实现上述声明的接口，得到可以做具体请求操作的实现类。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">Retrofit retrofit = <span class="keyword">new</span> Retrofit.Builder()</div><div class="line">    .baseUrl(<span class="string">"https://api.github.com/"</span>)</div><div class="line">    .build();</div><div class="line"></div><div class="line">GitHubService service = retrofit.create(GitHubService.class);</div></pre></td></tr></table></figure></p>
+<p><strong>相关概念</strong><br><strong>CallAdapter：</strong>Adapter a Call into  the type of T.（将一个Call适配为另外一个Call的适配器接口）</p>
+<ul>
+<li>Type responseType()：将返回的请求转化为参数Type类型</li>
+<li>T adapt(Call<r> call)：将一个Call转换成另外一个Call</r></li>
+</ul>
+<h3 id="HTTP-Call"><a href="#HTTP-Call" class="headerlink" title="HTTP Call"></a>HTTP Call</h3><p>调用上述实现类的方法即可得到Call，而Retrofit内部使用OkHttp实现HTTP Call，最后通过Converter转换成用户想要的对象体。<br>Call：An invocation of a Retrofit method that sends a request to a webserver and returns a response.（请求发送与响应返回方法的调用）<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">Call&lt;List&lt;Repo&gt;&gt; repos = service.listRepos(<span class="string">"octocat"</span>);</div></pre></td></tr></table></figure></p>
+<h3 id="主线用例"><a href="#主线用例" class="headerlink" title="主线用例"></a>主线用例</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 源码剖析 - 步骤1~4</span></div><div class="line">Retrofit retrofit = <span class="keyword">new</span> Retrofit.Builder()</div><div class="line">            .baseUrl(<span class="string">"http://gank.io/"</span>)</div><div class="line">            .addConverterFactory(GsonConverterFactory.create())</div><div class="line">            .build();</div><div class="line">    <span class="comment">// 源码剖析 - 步骤5~6</span></div><div class="line">    Api api = retrofit.create(Api.class);</div><div class="line">    <span class="comment">// 源码剖析 - 步骤7</span></div><div class="line">    Call&lt;BaseModel&lt;ArrayList&lt;Benefit&gt;&gt;&gt; call = api.defaultBenefits(<span class="number">20</span>, page++);</div><div class="line"></div><div class="line">    call.enqueue(<span class="keyword">new</span> Callback&lt;BaseModel&lt;ArrayList&lt;Benefit&gt;&gt;&gt;() &#123;</div><div class="line">                 <span class="meta">@Override</span></div><div class="line">                 <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onResponse</span><span class="params">(Call&lt;BaseModel&lt;ArrayList&lt;Benefit&gt;&gt;&gt; call, Response&lt;BaseModel&lt;ArrayList&lt;Benefit&gt;&gt;&gt; response)</span> </span>&#123;</div><div class="line">                     <span class="keyword">if</span> (action == PullRecycler.ACTION_PULL_TO_REFRESH) &#123;</div><div class="line">                         mDataList.clear();</div><div class="line">                     &#125;</div><div class="line">                     <span class="keyword">if</span> (response.body().results == <span class="keyword">null</span> || response.body().results.size() == <span class="number">0</span>) &#123;</div><div class="line">                         recycler.enableLoadMore(<span class="keyword">false</span>);</div><div class="line">                     &#125; <span class="keyword">else</span> &#123;</div><div class="line">                         recycler.enableLoadMore(<span class="keyword">true</span>);</div><div class="line">                         mDataList.addAll(response.body().results);</div><div class="line">                         adapter.notifyDataSetChanged();</div><div class="line">                     &#125;</div><div class="line">                     recycler.onRefreshCompleted();</div><div class="line">                 &#125;</div><div class="line"></div><div class="line">                 <span class="meta">@Override</span></div><div class="line">                 <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onFailure</span><span class="params">(Call&lt;BaseModel&lt;ArrayList&lt;Benefit&gt;&gt;&gt; call, Throwable t)</span> </span>&#123;</div><div class="line">                     recycler.onRefreshCompleted();</div><div class="line">                 &#125;</div><div class="line">             &#125;</div><div class="line">);</div></pre></td></tr></table></figure>
+<h2 id="Retrofit主线源码剖析（HOW-Part-1）"><a href="#Retrofit主线源码剖析（HOW-Part-1）" class="headerlink" title="Retrofit主线源码剖析（HOW - Part 1）"></a>Retrofit主线源码剖析（HOW - Part 1）</h2><ol>
+<li><p><strong>Retrofit对象的创建</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">Retrofit retrofit = <span class="keyword">new</span> Retrofit.Builder()</div><div class="line">        .baseUrl(<span class="string">"http://gank.io/"</span>)</div><div class="line">        .addConverterFactory(GsonConverterFactory.create())</div><div class="line">        .build();</div></pre></td></tr></table></figure>
+</li>
+<li><p><strong>build()方法内部</strong><br><strong>构建Retrofit对象主要思路：</strong>1、创建callbackExecutor（内部获取主线程MainLooper来构建Hanlder，其execute方法本质是Handler.post(runnable)，待用于线程切换）；2、构建adapterFactories集合，将defaultAdapterFactory加入其中（ExecutorCallAdapterFactory类，<strong>线程切换关键实现</strong>，内部持有OkHttp代理delegate，在delegate.enqueue中的onRespond方法内使用刚刚创建的callbackExecutor.execute方法，从而实现线程切换）</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> Retrofit <span class="title">build</span><span class="params">()</span> </span>&#123;</div><div class="line">  ...</div><div class="line">  <span class="comment">// 创建OkHttp，目前Retrofit只支持OkHttp</span></div><div class="line">  okhttp3.Call.Factory callFactory = <span class="keyword">this</span>.callFactory;</div><div class="line">  <span class="keyword">if</span> (callFactory == <span class="keyword">null</span>) &#123;</div><div class="line">    callFactory = <span class="keyword">new</span> OkHttpClient();</div><div class="line">  &#125;</div><div class="line">  </div><div class="line">  <span class="comment">// 创建Executor，见步骤3</span></div><div class="line">  Executor callbackExecutor = <span class="keyword">this</span>.callbackExecutor;</div><div class="line">  <span class="keyword">if</span> (callbackExecutor == <span class="keyword">null</span>) &#123;</div><div class="line">    callbackExecutor = platform.defaultCallbackExecutor();</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  <span class="comment">// Make a defensive copy of the adapters and add the default Call adapter.</span></div><div class="line">  <span class="comment">// 对adapters进行保护性拷贝，并且加入默认的call adapter（使用上面创建的Executor来构建，可以认为是把主线程中的Handler传入）</span></div><div class="line">  <span class="comment">// 构建adapterFactories集合，将defaultAdapterFactory加入其中，见步骤4</span></div><div class="line">  List&lt;CallAdapter.Factory&gt; adapterFactories = <span class="keyword">new</span> ArrayList&lt;&gt;(<span class="keyword">this</span>.adapterFactories);</div><div class="line">  adapterFactories.add(platform.defaultCallAdapterFactory(callbackExecutor));</div><div class="line"></div><div class="line">  <span class="comment">// Make a defensive copy of the converters.</span></div><div class="line">  <span class="comment">// 对converters进行保护性拷贝</span></div><div class="line">  <span class="comment">// 一般传入的为GsonConverterFactory对象，其作用主要是将json转换成java对象</span></div><div class="line">  List&lt;Converter.Factory&gt; converterFactories = <span class="keyword">new</span> ArrayList&lt;&gt;(<span class="keyword">this</span>.converterFactories);</div><div class="line"></div><div class="line">  <span class="comment">//最终完成Retrofit对象构建</span></div><div class="line">  <span class="keyword">return</span> <span class="keyword">new</span> Retrofit(callFactory, baseUrl, converterFactories, adapterFactories,</div><div class="line">      callbackExecutor, validateEagerly);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+</li>
+<li><p><strong>Executor的获取 - platform.defaultCallbackExecutor();</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">Android</span> <span class="keyword">extends</span> <span class="title">Platform</span> </span>&#123;</div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> Executor <span class="title">defaultCallbackExecutor</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="comment">// 返回MainThreadExecutor</span></div><div class="line">        <span class="keyword">return</span> <span class="keyword">new</span> Platform.Android.MainThreadExecutor();</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    CallAdapter.<span class="function">Factory <span class="title">defaultCallAdapterFactory</span><span class="params">(Executor callbackExecutor)</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> <span class="keyword">new</span> ExecutorCallAdapterFactory(callbackExecutor);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">MainThreadExecutor</span> <span class="keyword">implements</span> <span class="title">Executor</span> </span>&#123;</div><div class="line">        <span class="comment">// 从主线程得到MainLooper，构建Handler</span></div><div class="line">        <span class="keyword">private</span> <span class="keyword">final</span> Handler handler = <span class="keyword">new</span> Handler(Looper.getMainLooper());</div><div class="line"></div><div class="line">        <span class="meta">@Override</span></div><div class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">execute</span><span class="params">(Runnable r)</span> </span>&#123;</div><div class="line">            <span class="comment">// execute方法本质：通过handler，在主线程上执行该runnable</span></div><div class="line">            handler.post(r);</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+</li>
+<li><p><strong>详解 platform.defaultCallAdapterFactory(callbackExecutor) - 线程切换的关键</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// platform.defaultCallAdapterFactory(callbackExecutor)</span></div><div class="line">CallAdapter.<span class="function">Factory <span class="title">defaultCallAdapterFactory</span><span class="params">(Executor callbackExecutor)</span> </span>&#123;</div><div class="line">  <span class="keyword">if</span> (callbackExecutor != <span class="keyword">null</span>) &#123;</div><div class="line">    <span class="keyword">return</span> <span class="keyword">new</span> ExecutorCallAdapterFactory(callbackExecutor);</div><div class="line">  &#125;</div><div class="line">  <span class="keyword">return</span> DefaultCallAdapterFactory.INSTANCE;</div><div class="line">&#125;</div><div class="line"><span class="comment">// ExecutorCallAdapterFactory构造方法</span></div><div class="line"><span class="comment">// ExecutorCallAdapterFactory通过传参，得到callbackExecutor</span></div><div class="line">ExecutorCallAdapterFactory(Executor callbackExecutor) &#123;</div><div class="line">  <span class="keyword">this</span>.callbackExecutor = callbackExecutor;</div><div class="line">&#125;</div><div class="line"></div><div class="line"> <span class="comment">// get方法，创建并返回Android平台默认CallAdapter</span></div><div class="line"> <span class="meta">@Override</span></div><div class="line">  <span class="keyword">public</span> CallAdapter&lt;?, ?&gt; get(Type returnType, Annotation[] annotations, Retrofit retrofit) &#123;</div><div class="line">    <span class="keyword">if</span> (getRawType(returnType) != Call.class) &#123;</div><div class="line">      <span class="keyword">return</span> <span class="keyword">null</span>;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">final</span> Type responseType = Utils.getCallResponseType(returnType);</div><div class="line">    <span class="keyword">return</span> <span class="keyword">new</span> CallAdapter&lt;Object, Call&lt;?&gt;&gt;() &#123;</div><div class="line">      <span class="meta">@Override</span> <span class="function"><span class="keyword">public</span> Type <span class="title">responseType</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> responseType;</div><div class="line">      &#125;</div><div class="line">      <span class="meta">@Override</span> <span class="function"><span class="keyword">public</span> Call&lt;Object&gt; <span class="title">adapt</span><span class="params">(Call&lt;Object&gt; call)</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> <span class="keyword">new</span> ExecutorCallbackCall&lt;&gt;(callbackExecutor, call);</div><div class="line">      &#125;</div><div class="line">    &#125;;</div><div class="line">  &#125;</div><div class="line"></div><div class="line"> <span class="comment">//----------------------------分割线-----------------------------------</span></div><div class="line"> <span class="comment">// ExecutorCallAdapterFactory内部类ExecutorCallbackCall中enqueue方法，子线程转换为主线程的关键</span></div><div class="line"><span class="meta">@Override</span> </div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">enqueue</span><span class="params">(<span class="keyword">final</span> Callback&lt;T&gt; callback)</span> </span>&#123;</div><div class="line">  <span class="keyword">if</span> (callback == <span class="keyword">null</span>) <span class="keyword">throw</span> <span class="keyword">new</span> NullPointerException(<span class="string">"callback == null"</span>);</div><div class="line">  <span class="comment">// 子线程中执行，此处的delegate本质是OkHttpCall（主要用于对接OkHttp框架）</span></div><div class="line">  delegate.enqueue(<span class="keyword">new</span> Callback&lt;T&gt;() &#123;</div><div class="line">    <span class="meta">@Override</span> </div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onResponse</span><span class="params">(<span class="keyword">final</span> Call&lt;T&gt; call, <span class="keyword">final</span> Response&lt;T&gt; response)</span> </span>&#123;</div><div class="line">      <span class="comment">// 响应请求，调用callbackExecutor的execute</span></div><div class="line">      <span class="comment">// 从步骤3中可知，该方法本质是调用主线程的Handler执行runnable</span></div><div class="line">      <span class="comment">// 包裹用户传入的callback，从而实现线程切换 </span></div><div class="line">      callbackExecutor.execute(<span class="keyword">new</span> Runnable() &#123;</div><div class="line">      <span class="meta">@Override</span> </div><div class="line">      <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</div><div class="line">          <span class="keyword">if</span> (delegate.isCanceled()) &#123;</div><div class="line">            <span class="comment">// Emulate OkHttp's behavior of throwing/delivering an IOException oncancellation.</span></div><div class="line">            callback.onFailure(call, <span class="keyword">new</span> IOException(<span class="string">"Canceled"</span>));</div><div class="line">          &#125; <span class="keyword">else</span> &#123;</div><div class="line">            callback.onResponse(call, response);</div><div class="line">          &#125;</div><div class="line">        &#125;</div><div class="line">      &#125;);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span> <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onFailure</span><span class="params">(<span class="keyword">final</span> Call&lt;T&gt; call, <span class="keyword">final</span> Throwable t)</span> </span>&#123;</div><div class="line">      <span class="comment">// 包裹用户传入的callback，从而实现线程切换 </span></div><div class="line">      callbackExecutor.execute(<span class="keyword">new</span> Runnable() &#123;</div><div class="line">        <span class="meta">@Override</span> <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</div><div class="line">          callback.onFailure(call, t);</div><div class="line">        &#125;</div><div class="line">      &#125;);</div><div class="line">    &#125;</div><div class="line">  &#125;);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+</li>
+<li><p><strong>详解：retrofit.create(Api.class)</strong><br><strong>创建接口实现类：</strong>创建并返回一个会拦截接口方法的动态代理对象实例 - 接口方法被调用时，会被其拦截，内部将接口方法适配成HTTP Call，再构造对应的OkHttpCall，最后通过CallAdapter.adapt()转换成Retrofit适用的call delegates（即ExecutorCallbackCall）。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line">Api api = retrofit.create(Api.class);</div><div class="line"><span class="comment">// create方法内部实现，返回一个动态代理实例</span></div><div class="line"><span class="keyword">public</span> &lt;T&gt; <span class="function">T <span class="title">create</span><span class="params">(<span class="keyword">final</span> Class&lt;T&gt; service)</span> </span>&#123;</div><div class="line">    ...</div><div class="line">    <span class="comment">// 该动态代理会对接口方法进行拦截</span></div><div class="line">    <span class="keyword">return</span> (T) Proxy.newProxyInstance(service.getClassLoader(), <span class="keyword">new</span> Class&lt;?&gt;[] &#123; service &#125;,</div><div class="line">        <span class="comment">// 创建一个InvocationHandler，接口方法被调用时会被拦截调用</span></div><div class="line">        <span class="keyword">new</span> InvocationHandler() &#123;</div><div class="line">          <span class="keyword">private</span> <span class="keyword">final</span> Platform platform = Platform.get();</div><div class="line">    <span class="comment">// 当Api接口方法被调用时，会调用invoke方法拦截</span></div><div class="line">          <span class="meta">@Override</span> <span class="function"><span class="keyword">public</span> Object <span class="title">invoke</span><span class="params">(Object proxy, Method method, Object... args)</span></span></div><div class="line">              <span class="keyword">throws</span> Throwable &#123;</div><div class="line">            ...</div><div class="line">            <span class="comment">// 通过解析api方法注解、传参，将接口中方法适配成HTTP Call，详解见步骤6</span></div><div class="line">            ServiceMethod serviceMethod = loadServiceMethod(method);</div><div class="line">            <span class="comment">// 拦截下来之后，内部构建一个okHttpCall</span></div><div class="line">            OkHttpCall okHttpCall = <span class="keyword">new</span> OkHttpCall&lt;&gt;(serviceMethod, args);</div><div class="line">            <span class="comment">// 最后通过callAdapter将okHttpCall转换成为Retrofit适用的call delegates（代理），Android平台默认使用ExecutorCallAdapterFactory，adapt返回ExecutorCallbackCall（即步骤4）</span></div><div class="line">            <span class="keyword">return</span> serviceMethod.callAdapter.adapt(okHttpCall);</div><div class="line">          &#125;</div><div class="line">        &#125;);</div><div class="line">  &#125;</div></pre></td></tr></table></figure>
+</li>
+<li><p><strong>详解 ServiceMethod serviceMethod = loadServiceMethod(method);</strong><br><strong>ServiceMethod整体思路：</strong> 内部主要是将方法中的注解取出，转换成HTTP Call的逻辑，暂且不深究。<br>下面看loadServiceMethod方法的实现</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// 内部有缓存以提高性能，避免重复解析 - 使用LinkedHashMap来存储ServiceMethod，与接口中方法一一对应</span></div><div class="line"><span class="keyword">private</span> <span class="keyword">final</span> Map&lt;Method, ServiceMethod&gt; serviceMethodCache = <span class="keyword">new</span> LinkedHashMap&lt;&gt;();</div><div class="line"><span class="function">ServiceMethod <span class="title">loadServiceMethod</span><span class="params">(Method method)</span> </span>&#123;</div><div class="line">  ServiceMethod result;</div><div class="line">  <span class="keyword">synchronized</span> (serviceMethodCache) &#123;</div><div class="line">    <span class="comment">// 通过传入的方法，从Map中取出对应的ServiceMethod</span></div><div class="line">    result = serviceMethodCache.get(method);</div><div class="line">    <span class="keyword">if</span> (result == <span class="keyword">null</span>) &#123;</div><div class="line">  <span class="comment">// 如果还没有实现，则构造一个ServiceMethod实例放入Map中</span></div><div class="line">      result = <span class="keyword">new</span> ServiceMethod.Builder(<span class="keyword">this</span>, method).build();</div><div class="line">      serviceMethodCache.put(method, result);</div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line">  <span class="keyword">return</span> result;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+</li>
+<li><p><strong> 回到主线</strong>，retrofit.create()方法创建好实现类后，调用接口方法获得Call，前面步骤5已经说道，当接口方法被调用时候，会被拦截并且转换成HTTP Call。<br><strong>下面我们使用call进行enqueue操作：</strong>此处的call，即ExecutorCallbackCall，它有execute（同步）、enqueue（异步）两个方法，其中enqueue方法，可达到子线程请求，成功后切换回主线程的效果（原理 - 步骤4），免去了开启线程、使用handler跨线程通信的操作。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">Call&lt;BaseModel&lt;ArrayList&lt;Benefit&gt;&gt;&gt; call = api.defaultBenefits(<span class="number">20</span>, page++);</div><div class="line">call.enqueue(<span class="keyword">new</span> Callback&lt;BaseModel&lt;ArrayList&lt;Benefit&gt;&gt;&gt;() &#123;</div><div class="line">                <span class="comment">// 该处的onResponse方法已经转换到主线程上了，而转换关键在于Retrofit对象构建时，defaultAdapterFactory内部实现，见步骤2-&gt;步骤4</span></div><div class="line">                 <span class="meta">@Override</span></div><div class="line">                 <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onResponse</span><span class="params">(Call&lt;BaseModel&lt;ArrayList&lt;Benefit&gt;&gt;&gt; call, Response&lt;BaseModel&lt;ArrayList&lt;Benefit&gt;&gt;&gt; response)</span> </span>&#123;</div><div class="line">                    ...</div><div class="line">                 &#125;</div><div class="line"></div><div class="line">                 <span class="meta">@Override</span></div><div class="line">                 <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onFailure</span><span class="params">(Call&lt;BaseModel&lt;ArrayList&lt;Benefit&gt;&gt;&gt; call, Throwable t)</span> </span>&#123;</div><div class="line">                    ...</div><div class="line">                 &#125;</div><div class="line">             &#125;</div></pre></td></tr></table></figure>
+</li>
+<li><p><strong>Retrofit主线流程总结：</strong><br><strong>1. Retrofit对象的构建 - Retrofit.Builder()…build():</strong>①<strong>构建OkHttpClient</strong>，目前Retrofit仅支持OkHttpClient；②<strong>构建Executor</strong>：优先根据用户提供的callBackExcecutor来构建，若用户没有提供，则提供defaultCallbackExecutor（其<strong>内部会获取MainLooper构建handler，execute方法直接handler.post(runnable)，实现在主线程上的操作</strong>）；③<strong>使用executor来构建adapterFactories集合</strong>，优先将用户提供的adapterFactory加入到其中，再加上defaultCallAdapterFactory（传入②创建的callbackExecutor，defaultCallAdapterFactory内部持有OkHttpCall，在其enqueue方法中的onResponse方法调用defaultCallbackExecutor.execute方法，从而<strong>实现线程切换操作</strong>）；④最终使用<strong>Retrofit构造方法</strong>构建Retrofit实例对象</p>
+<p><strong>2. Retrofit接口方法的实现方式 - retrofit.create(接口名.class)：</strong>①<strong>create方法创建并返回动态代理对象实例</strong>，动态代理对象内部会拦截接口方法的调用②<strong>动态代理内部通过ServiceMethod将接口方法适配成HTTP Call</strong>，再构造对应的OkHttpCall，最后通过CallAdapter转换成Retrofit适用的call delegate（ExecutorCallbackCall）。</p>
+<p><strong>3. 使用动态代理(接口实现类)调用接口方法得到Call、使用call.enqueue进行异步请求：</strong>①调用接口方法时，动态代理对象（接口实现类）<strong>内部拦截</strong>；②<strong>调用call.enqueue</strong>，内部会调用ExecutorCallAdapter的enqueue方法，enqueue中onResponse方法调用defaultCallbackExecutor.execute方法，使用主线程Handler.post(runnable)从而<strong>实现线程切换操作</strong>。</p>
+</li>
+<li><strong>Retrofit主线流程总结图解（从上往下阅读）：</strong><br><img src="http://upload-images.jianshu.io/upload_images/1513860-c760c0ae59e266c4.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt=""></li>
+</ol>
+<h2 id="Retrofit源码深入探索（HOW-Part-2）"><a href="#Retrofit源码深入探索（HOW-Part-2）" class="headerlink" title="Retrofit源码深入探索（HOW - Part 2）"></a>Retrofit源码深入探索（HOW - Part 2）</h2><ol>
+<li><p>retrofit.create()方法中一段令人疑惑的代码，却是<strong>Retrofit工作主要代码</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// ①创建ServiceMethod，见深入探索步骤2</span></div><div class="line">ServiceMethod&lt;Object, Object&gt; serviceMethod = (ServiceMethod&lt;Object, Object&gt;) loadServiceMethod(method);</div><div class="line"><span class="comment">// ②传入ServiceMethod构造OkHttpCall，使用构造方法传入成员变量</span></div><div class="line">OkHttpCall&lt;Object&gt; okHttpCall = <span class="keyword">new</span> OkHttpCall&lt;&gt;(serviceMethod, args);</div><div class="line"><span class="comment">// ③又将构造好的OkHttpCall传回，通过ServiceMethod中的callAdapter来进行转换，见步骤4</span></div><div class="line"><span class="keyword">return</span> serviceMethod.callAdapter.adapt(okHttpCall);</div></pre></td></tr></table></figure>
+</li>
+<li><p><strong>解析ServiceMethod：</strong>Adapts an invocation of an interface method into an HTTP call - 将接口中的方法适配成HTTP Call<br>loadServiceMethod内部通过Builder，build()方法创建：内部创建了CallAdapter（例：defaultCallAdapterFactory - 将Http Call 转成Retrofit中的Call-&gt;调用okHttp3.Call-&gt;线程切换）、Converter（请求结果转换器，例：Gson）、callFactory（okhttp3.Call.Factory - 对接okHttp）、</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div></pre></td><td class="code"><pre><div class="line">    <span class="function"><span class="keyword">public</span> ServiceMethod <span class="title">build</span><span class="params">()</span> </span>&#123;</div><div class="line">      <span class="comment">// callAdapter的创建</span></div><div class="line">      callAdapter = createCallAdapter();<span class="comment">//追踪代码可知：本质通过retrofit.nextCallAdapter方法创建，见步骤3</span></div><div class="line">      responseType = callAdapter.responseType();</div><div class="line">      ...</div><div class="line">      <span class="comment">// 创建ResponseConverter（转换器 - 对象与Http表示形式相互转换）</span></div><div class="line">      responseConverter = createResponseConverter();</div><div class="line"></div><div class="line">      <span class="comment">// 解析注解参数，逻辑不必深究</span></div><div class="line">      <span class="keyword">for</span> (Annotation annotation : methodAnnotations) &#123;</div><div class="line">        parseMethodAnnotation(annotation);</div><div class="line">      &#125;</div><div class="line">      ...</div><div class="line">      <span class="keyword">return</span> <span class="keyword">new</span> ServiceMethod&lt;&gt;(<span class="keyword">this</span>);</div><div class="line">    &#125;</div><div class="line"><span class="comment">// 构造方法，内部参数基本都由Retrofit提供</span></div><div class="line">ServiceMethod(Builder&lt;R, T&gt; builder) &#123;</div><div class="line">    <span class="comment">// 负责创建HTTP请求，一个可以执行的HTTP请求（okHttp3.Call），仅支持OkHttpClient</span></div><div class="line">    <span class="keyword">this</span>.callFactory = builder.retrofit.callFactory();</div><div class="line">    <span class="comment">// 将Retrofit中的Call&lt;T&gt;转为T（Retrofit中的Call ≠ okHttp中的Call，前者表示retrofit接口方法调用，内部通过后者实现，最后通过）</span></div><div class="line">    <span class="keyword">this</span>.callAdapter = builder.callAdapter;<span class="comment">// 将响应类型适配成用户指定的类</span></div><div class="line">    <span class="keyword">this</span>.responseConverter = builder.responseConverter;<span class="comment">// 对象与Http表示形式相互转换的转换器</span></div><div class="line">    <span class="keyword">this</span>.parameterHandlers = builder.parameterHandlers;<span class="comment">// 解析接口注解参数</span></div><div class="line">    ...<span class="comment">// 略去非重点关注成员变量</span></div><div class="line">  &#125;</div></pre></td></tr></table></figure>
+</li>
+<li><p><strong>CallAdapter的创建：</strong>遍历adapterFactories，找到并返回合适的adapter</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> CallAdapter&lt;?, ?&gt; nextCallAdapter(CallAdapter.Factory skipPast, Type returnType,</div><div class="line">      Annotation[] annotations) &#123;</div><div class="line">    ...</div><div class="line">    <span class="comment">//  遍历adapterFactories，找到可以接收指定类型的adapter</span></div><div class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = start, count = adapterFactories.size(); i &lt; count; i++) &#123;</div><div class="line">      <span class="comment">// 通过get方法，获得相匹配的类型</span></div><div class="line">      CallAdapter&lt;?, ?&gt; adapter = adapterFactories.get(i).get(returnType, annotations, <span class="keyword">this</span>);</div><div class="line">      <span class="keyword">if</span> (adapter != <span class="keyword">null</span>) &#123;</div><div class="line">        <span class="comment">// 找到合适adapter，返回</span></div><div class="line">        <span class="keyword">return</span> adapter;</div><div class="line">      &#125;</div><div class="line">    &#125;</div><div class="line">    ...</div><div class="line">&#125;</div><div class="line"><span class="comment">//下面看看一般的adapterFactories源码</span></div><div class="line"><span class="comment">//1、ExecutorCallAdapterFactory中的get方法</span></div><div class="line"><span class="keyword">public</span> CallAdapter&lt;?, ?&gt; get(Type returnType, Annotation[] annotations, Retrofit retrofit) &#123;</div><div class="line">    <span class="comment">// 如果返回类型为Call类型，则使用它</span></div><div class="line">    <span class="keyword">if</span> (getRawType(returnType) != Call.class) &#123;</div><div class="line">      <span class="keyword">return</span> <span class="keyword">null</span>;</div><div class="line">    &#125;</div><div class="line">    ...</div><div class="line">&#125;</div><div class="line"><span class="comment">//2、RxJavaCallAdapterFactory、RxJavaCallAdapterFactory中的get方法是Observable类型（源码略显复杂掠过）</span></div></pre></td></tr></table></figure>
+</li>
+<li><p><strong>解析serviceMethod.callAdapter.adapt方法：</strong>因callAdapter类型而异，ExecutorCallAdapterFactory适配的是ExecutorCallbackCall类型，而RxJava适配的是Observable类型<br><strong>注意：</strong>无论是什么类型的callAdapter，最终都会调用OkHttpCall中的enqueue、execute方法，把实际的工作交给OkHttp来做，详见步骤5</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// ExecutorCallAdapterFactory</span></div><div class="line"><span class="meta">@Override</span> <span class="function"><span class="keyword">public</span> Call&lt;Object&gt; <span class="title">adapt</span><span class="params">(Call&lt;Object&gt; call)</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> <span class="keyword">new</span> ExecutorCallbackCall&lt;&gt;(callbackExecutor, call);</div><div class="line">      &#125;</div><div class="line"><span class="comment">// RxJavaCallAdapter</span></div><div class="line"><span class="meta">@Override</span> <span class="function"><span class="keyword">public</span> Object <span class="title">adapt</span><span class="params">(Call&lt;R&gt; call)</span> </span>&#123;</div><div class="line">    OnSubscribe&lt;Response&lt;R&gt;&gt; callFunc = <span class="keyword">new</span> CallOnSubscribe&lt;&gt;(call);</div><div class="line"></div><div class="line">    OnSubscribe&lt;?&gt; func;</div><div class="line">    <span class="comment">// 构造订阅者func逻辑，省略...</span></div><div class="line">    <span class="comment">// 通过func构造Observable</span></div><div class="line">    Observable&lt;?&gt; observable = Observable.create(func);</div><div class="line">    <span class="comment">// Observable配置逻辑，省略...</span></div><div class="line">    <span class="keyword">return</span> observable;</div><div class="line">  &#125;</div></pre></td></tr></table></figure>
+</li>
+<li><p><strong>解析OkHttpCall调用链：</strong>OkHttp的包装类，与OkHttp对接，实现了Retrofit中的Call接口，内部使用OkHttp框架来进行实际操作，解析好数据后再调用传入的callbackA -(内部通过Execute实现线程切换)-&gt;调用用户传入的callbackInMainThread（漫长的一个调用链..）</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div></pre></td><td class="code"><pre><div class="line"> <span class="comment">// 从上面分析可知，调用接口定义方法返回ExecutorCallbackCall        </span></div><div class="line"> <span class="comment">// call.enqueue(callbackInMainThread);  调用其enqueue方法，内部持有OkHttpCall 作为 delegate</span></div><div class="line"><span class="comment">// 将callbackInMainThread包裹executor实现线程切换，生成callbackA</span></div><div class="line"><span class="comment">// delegate.enqueue(callbackA); 上面的方法内部会调用delegate.enqueue方法以对接OkHttp框架</span></div><div class="line"><span class="comment">// 下面看OkHttpCall的enqueue方法（OkHttp框架里的方法，与Retrofit无关）</span></div><div class="line"><span class="meta">@Override</span> <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">enqueue</span><span class="params">(<span class="keyword">final</span> Callback&lt;T&gt; callback)</span> </span>&#123;</div><div class="line">     ...</div><div class="line">    okhttp3.Call call;</div><div class="line">    ...</div><div class="line">    call.enqueue(<span class="keyword">new</span> okhttp3.Callback() &#123;</div><div class="line">    <span class="meta">@Override</span> <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onResponse</span><span class="params">(okhttp3.Call call, okhttp3.Response rawResponse)</span></span></div><div class="line">          <span class="keyword">throws</span> IOException &#123;</div><div class="line">        Response&lt;T&gt; response;</div><div class="line">        <span class="keyword">try</span> &#123;</div><div class="line">      <span class="comment">// onResponse时候进行数据转换，关键点：Converter （下方附有调用链）</span></div><div class="line">          response = parseResponse(rawResponse);</div><div class="line">        &#125; <span class="keyword">catch</span> (Throwable e) &#123;</div><div class="line">          callFailure(e);</div><div class="line">          <span class="keyword">return</span>;</div><div class="line">        &#125;</div><div class="line">        callSuccess(response);</div><div class="line">      &#125;</div><div class="line">        ...</div><div class="line">    <span class="comment">// 请求失败调用callbackA.onFailure -(内部线程切换)-&gt; callbackInMainThread.onFailure</span></div><div class="line">      <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">callFailure</span><span class="params">(Throwable e)</span> </span>&#123;</div><div class="line">        <span class="keyword">try</span> &#123;</div><div class="line">          callback.onFailure(OkHttpCall.<span class="keyword">this</span>, e);</div><div class="line">        &#125; <span class="keyword">catch</span> (Throwable t) &#123;</div><div class="line">          t.printStackTrace();</div><div class="line">        &#125;</div><div class="line">      &#125;</div><div class="line">    <span class="comment">// 响应成功调用callbackA.onResponse -(内部线程切换)-&gt; callbackInMainThread.onSuccess或onFailure</span></div><div class="line">      <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">callSuccess</span><span class="params">(Response&lt;T&gt; response)</span> </span>&#123;</div><div class="line">        <span class="keyword">try</span> &#123;</div><div class="line">          callback.onResponse(OkHttpCall.<span class="keyword">this</span>, response);</div><div class="line">        &#125; <span class="keyword">catch</span> (Throwable t) &#123;</div><div class="line">          t.printStackTrace();</div><div class="line">        &#125;</div><div class="line">      &#125;</div><div class="line">    &#125;);</div><div class="line">  &#125;</div><div class="line"></div><div class="line"> <span class="comment">// 数据转换调用链：parseResponse -(关键调用)-&gt; serviceMethod.toResponse -&gt; GsonRequestBodyConverter.convert</span></div><div class="line"> <span class="function">Response&lt;T&gt; <span class="title">parseResponse</span><span class="params">(okhttp3.Response rawResponse)</span> <span class="keyword">throws</span> IOException </span>&#123;</div><div class="line">      ...</div><div class="line">      T body = serviceMethod.toResponse(catchingBody);</div><div class="line">      ...</div><div class="line">    &#125;</div></pre></td></tr></table></figure>
+</li>
+</ol>
+<h2 id="Retrofit中的设计模式，解耦方式（WHY）"><a href="#Retrofit中的设计模式，解耦方式（WHY）" class="headerlink" title="Retrofit中的设计模式，解耦方式（WHY）"></a>Retrofit中的设计模式，解耦方式（WHY）</h2><p>Retrofit中涉及不少的设计模式，笔者能力有限，设计模式方面知识储备不足，仍需继续努力，这里暂且给出设计模式定义与链接，作初步认识。</p>
+<h3 id="门面模式（Facade-Pattern）"><a href="#门面模式（Facade-Pattern）" class="headerlink" title="门面模式（Facade Pattern）"></a>门面模式（Facade Pattern）</h3><p>Retrofit - retrofit.create()<br><strong>定义：</strong>外部与一个子系统的通信必须通过一个统一的外观对象进行，为子系统中的一组接口提供一个一致的界面，外观模式定义了一个高层接口，这个接口使得这一子系统更加容易使用。门面模式又称为外观模式，它是一种对象结构型模式。<br><strong>传送门：</strong><a href="http://blog.csdn.net/xingjiarong/article/details/50066133" target="_blank" rel="external">xingjiarong - 门面模式</a></p>
+<h3 id="工厂模式"><a href="#工厂模式" class="headerlink" title="工厂模式"></a>工厂模式</h3><p>Retrofit中的三大工厂 - okhttp3.Call.Factory，CallAdapter.Factory 和 Converter.Factory<br><strong>定义</strong>：又称为静态工厂方法(Static Factory Method)模式，它属于类创建型模式（同属于创建型模式的还有工厂方法模式，抽象工厂模式，单例模式，建造者模式）。在简单工厂模式中，可以根据参数的不同返回不同类的实例。简单工厂模式专门定义一个类来负责创建其他类的实例，被创建的实例通常都具有共同的父类。<br><strong>传送门：</strong><a href="http://blog.csdn.net/xingjiarong/article/details/49999121" target="_blank" rel="external">xingjiarong - 简单工厂模式</a>、<a href="http://blog.csdn.net/xingjiarong/article/details/50051265" target="_blank" rel="external">xingjiarong - 抽象工厂模式</a></p>
+<h3 id="装饰模式"><a href="#装饰模式" class="headerlink" title="装饰模式"></a>装饰模式</h3><p>ExecutorCallbackCall类：在源“OkHttpCall”操作时，进行线程切换操作<br><strong>定义：</strong>动态地给一个对象增加一些额外的职责(Responsibility)，就增加对象功能来说，装饰模式比生成子类实现更为灵活。其别名也可以称为包装器(Wrapper)，与适配器模式的别名相同，但它们适用于不同的场合。根据翻译的不同，装饰模式也有人称之为“油漆工模式”，它是一种对象结构型模式。<br><strong>传送门：</strong><a href="http://design-patterns.readthedocs.io/zh_CN/latest/structural_patterns/decorator.html" target="_blank" rel="external">design-patterns - 装饰模式</a></p>
+<h3 id="动态代理"><a href="#动态代理" class="headerlink" title="动态代理"></a>动态代理</h3><p>ExecutorCallbackCall中的delegate的动态设置，从而针对不同代理采用不同方法<br><strong>定义：</strong>给某个对象提供一个代理对象，并由代理对象控制对于原对象的访问，即客户不直接操控原对象，而是通过代理对象间接地操控原对象。<br><strong>传送门：</strong><a href="http://www.jianshu.com/p/6f6bb2f0ece9" target="_blank" rel="external">xiazdong - 代理模式及Java实现动态代理</a></p>
+<h3 id="适配器模式"><a href="#适配器模式" class="headerlink" title="适配器模式"></a>适配器模式</h3><p>CallAdapter，各种适配器，将一个东西适配成一个适合我们使用的东西<br><strong>定义：</strong>适配器模式将一个类的接口，转化成客户期望的另一个接口。适配器让原本接口不兼容的类可以合作无间。<br><strong>传送门：</strong><a href="http://blog.csdn.net/xingjiarong/article/details/50146615" target="_blank" rel="external">xingjiarong - 适配器模式</a></p>
+<h3 id="策略模式"><a href="#策略模式" class="headerlink" title="策略模式"></a>策略模式</h3><p>CallAdapter内部还夹杂着策略模式？<br><strong>定义：</strong>定义一系列算法，将每一个算法封装起来，并让它们可以相互替换。策略模式让算法独立于使用它的客户而变化，也称为政策模式(Policy)。<br><strong>传送门：</strong><a href="http://blog.csdn.net/xingjiarong/article/details/50168853" target="_blank" rel="external">xingjiarong - 策略模式</a>、<a href="http://design-patterns.readthedocs.io/zh_CN/latest/behavioral_patterns/strategy.html" target="_blank" rel="external">design-patterns - 策略模式</a></p>
+<p><strong>Stay的详细分析：</strong><a href="http://www.jianshu.com/p/fb8d21978e38" target="_blank" rel="external">Retrofit分析-经典设计模式案例</a></p>
+<h2 id="学习资源"><a href="#学习资源" class="headerlink" title="学习资源"></a>学习资源</h2><ul>
+<li><a href="http://www.jianshu.com/p/45cb536be2f4" target="_blank" rel="external">Stay - Retrofit分析 - 漂亮的解耦套路</a></li>
+<li><a href="http://www.stay4it.com/course/22" target="_blank" rel="external">Stay - Retrofit分析 - 漂亮的解耦套路(视频版)</a></li>
+<li><a href="http://blog.piasy.com/2016/06/25/Understand-Retrofit/" target="_blank" rel="external">Piasy - 拆轮子系列：拆Retrofit</a></li>
+<li><a href="https://github.com/android-cn/android-open-project-analysis/tree/master/tool-lib/network/retrofit" target="_blank" rel="external">android-cn - Retrofit源码解析</a></li>
+</ul>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+    <div>感谢您的阅读，希望文章对您有所帮助</div>
+    <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+      <span>赏</span>
+    </button>
+    <div id="QR" style="display: none;">
+      
+        <div id="wechat" style="display: inline-block">
+          <img id="wechat_qr" src="/images/wechatpay.png" alt="Goo WeChat Pay"/>
+          <p>微信打赏</p>
+        </div>
+      
+      
+        <div id="alipay" style="display: inline-block">
+          <img id="alipay_qr" src="/images/alipay.png" alt="Goo Alipay"/>
+          <p>支付宝打赏</p>
+        </div>
+      
+    </div>
+  </div>
+
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/源码分析/" rel="tag">#源码分析</a>
+          
+            <a href="/tags/拆轮子笔记/" rel="tag">#拆轮子笔记</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/02/11/Android内存泄漏/" rel="next" title="明白原理，轻松应对Android内存泄漏">
+                <i class="fa fa-chevron-left"></i> 明白原理，轻松应对Android内存泄漏
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/01/08/针对Android重新认识OOP/" rel="prev" title="针对Android重新认识OOP">
+                针对Android重新认识OOP <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <div class="ds-share flat" data-thread-key="2017/01/15/拆轮子系列 - Retrofit/"
+     data-title="拆轮子系列 - 如何由浅入深探索 Retrofit 源码？"
+     data-content=""
+     data-url="http://yoursite.com/2017/01/15/拆轮子系列 - Retrofit/">
+  <div class="ds-share-inline">
+    <ul  class="ds-share-icons-16">
+
+      <li data-toggle="ds-share-icons-more"><a class="ds-more" href="javascript:void(0);">分享到：</a></li>
+      <li><a class="ds-weibo" href="javascript:void(0);" data-service="weibo">微博</a></li>
+      <li><a class="ds-qzone" href="javascript:void(0);" data-service="qzone">QQ空间</a></li>
+      <li><a class="ds-qqt" href="javascript:void(0);" data-service="qqt">腾讯微博</a></li>
+      <li><a class="ds-wechat" href="javascript:void(0);" data-service="wechat">微信</a></li>
+
+    </ul>
+    <div class="ds-share-icons-more">
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2017/01/15/拆轮子系列 - Retrofit/"
+           data-title="拆轮子系列 - 如何由浅入深探索 Retrofit 源码？" data-url="http://yoursite.com/2017/01/15/拆轮子系列 - Retrofit/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/icon.png"
+               alt="Goo" />
+          <p class="site-author-name" itemprop="name">Goo</p>
+          <p class="site-description motion-element" itemprop="description">沿路走到这里，尽量不要后退</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">15</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">12</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/Goo-Yao" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://www.jianshu.com/u/21d2303e41a6" target="_blank" title="简书">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  简书
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#网络请求框架的基本流程"><span class="nav-number">2.</span> <span class="nav-text">网络请求框架的基本流程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Retrofit-概述（WHAT）"><span class="nav-number">3.</span> <span class="nav-text">Retrofit 概述（WHAT）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#构建Request"><span class="nav-number">3.1.</span> <span class="nav-text">构建Request</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#实现Executor"><span class="nav-number">3.2.</span> <span class="nav-text">实现Executor</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#HTTP-Call"><span class="nav-number">3.3.</span> <span class="nav-text">HTTP Call</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#主线用例"><span class="nav-number">3.4.</span> <span class="nav-text">主线用例</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Retrofit主线源码剖析（HOW-Part-1）"><span class="nav-number">4.</span> <span class="nav-text">Retrofit主线源码剖析（HOW - Part 1）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Retrofit源码深入探索（HOW-Part-2）"><span class="nav-number">5.</span> <span class="nav-text">Retrofit源码深入探索（HOW - Part 2）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Retrofit中的设计模式，解耦方式（WHY）"><span class="nav-number">6.</span> <span class="nav-text">Retrofit中的设计模式，解耦方式（WHY）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#门面模式（Facade-Pattern）"><span class="nav-number">6.1.</span> <span class="nav-text">门面模式（Facade Pattern）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#工厂模式"><span class="nav-number">6.2.</span> <span class="nav-text">工厂模式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#装饰模式"><span class="nav-number">6.3.</span> <span class="nav-text">装饰模式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#动态代理"><span class="nav-number">6.4.</span> <span class="nav-text">动态代理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#适配器模式"><span class="nav-number">6.5.</span> <span class="nav-text">适配器模式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#策略模式"><span class="nav-number">6.6.</span> <span class="nav-text">策略模式</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#学习资源"><span class="nav-number">7.</span> <span class="nav-text">学习资源</span></a></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Goo</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.0.1"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"goo-tracks"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+    <script src="/lib/ua-parser-js/dist/ua-parser.min.js?v=0.7.9"></script>
+    <script src="/js/src/hook-duoshuo.js"></script>
+  
+
+
+
+
+
+
+  
+  
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length == 0) {
+       search_path = "search.xml";
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    function proceedsearch() {
+      $("body").append('<div class="popoverlay">').css('overflow', 'hidden');
+      $('.popup').toggle();
+
+    }
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+    'use strict';
+    $.ajax({
+        url: path,
+        dataType: "xml",
+        async: true,
+        success: function( xmlResponse ) {
+            // get the contents from search data
+            isfetched = true;
+            $('.popup').detach().appendTo('.header-inner');
+            var datas = $( "entry", xmlResponse ).map(function() {
+                return {
+                    title: $( "title", this ).text(),
+                    content: $("content",this).text(),
+                    url: $( "url" , this).text()
+                };
+            }).get();
+            var $input = document.getElementById(search_id);
+            var $resultContent = document.getElementById(content_id);
+            $input.addEventListener('input', function(){
+                var matchcounts = 0;
+                var str='<ul class=\"search-result-list\">';
+                var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                $resultContent.innerHTML = "";
+                if (this.value.trim().length > 1) {
+                // perform local searching
+                datas.forEach(function(data) {
+                    var isMatch = true;
+                    var content_index = [];
+                    var data_title = data.title.trim().toLowerCase();
+                    var data_content = data.content.trim().replace(/<[^>]+>/g,"").toLowerCase();
+                    var data_url = data.url;
+                    var index_title = -1;
+                    var index_content = -1;
+                    var first_occur = -1;
+                    // only match artiles with not empty titles and contents
+                    if(data_title != '' && data_content != '') {
+                        keywords.forEach(function(keyword, i) {
+                            index_title = data_title.indexOf(keyword);
+                            index_content = data_content.indexOf(keyword);
+                            if( index_title < 0 && index_content < 0 ){
+                                isMatch = false;
+                            } else {
+                                if (index_content < 0) {
+                                    index_content = 0;
+                                }
+                                if (i == 0) {
+                                    first_occur = index_content;
+                                }
+                            }
+                        });
+                    }
+                    // show search results
+                    if (isMatch) {
+                        matchcounts += 1;
+                        str += "<li><a href='"+ data_url +"' class='search-result-title'>"+ data_title +"</a>";
+                        var content = data.content.trim().replace(/<[^>]+>/g,"");
+                        if (first_occur >= 0) {
+                            // cut out 100 characters
+                            var start = first_occur - 20;
+                            var end = first_occur + 80;
+                            if(start < 0){
+                                start = 0;
+                            }
+                            if(start == 0){
+                                end = 50;
+                            }
+                            if(end > content.length){
+                                end = content.length;
+                            }
+                            var match_content = content.substring(start, end);
+                            // highlight all keywords
+                            keywords.forEach(function(keyword){
+                                var regS = new RegExp(keyword, "gi");
+                                match_content = match_content.replace(regS, "<b class=\"search-keyword\">"+keyword+"</b>");
+                            });
+
+                            str += "<p class=\"search-result\">" + match_content +"...</p>"
+                        }
+                        str += "</li>";
+                    }
+                })};
+                str += "</ul>";
+                if (matchcounts == 0) { str = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>' }
+                if (keywords == "") { str = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>' }
+                $resultContent.innerHTML = str;
+            });
+            proceedsearch();
+        }
+    });}
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched == false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+
+    });
+
+    $('.popup-btn-close').click(function(e){
+      $('.popup').hide();
+      $(".popoverlay").remove();
+      $('body').css('overflow', '');
+    });
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+  </script>
+
+
+  
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("BSwPKiNckzvJX4DpBuM5IM9Y-gzGzoHsz", "cRHrGaMhc9VOu2qDwkwSfrXx");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+</body>
+</html>

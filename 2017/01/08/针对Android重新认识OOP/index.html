@@ -1,0 +1,1070 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="设计思想," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Goo's Tracks" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="内容概要 OOP基本概念 认识对象Object 类Class &amp;lt;基类/子类&amp;gt;结构 主动型与被动型API">
+<meta name="keywords" content="设计思想">
+<meta property="og:type" content="article">
+<meta property="og:title" content="针对Android重新认识OOP">
+<meta property="og:url" content="http://yoursite.com/2017/01/08/针对Android重新认识OOP/index.html">
+<meta property="og:site_name" content="Goo's Tracks">
+<meta property="og:description" content="内容概要 OOP基本概念 认识对象Object 类Class &amp;lt;基类/子类&amp;gt;结构 主动型与被动型API">
+<meta property="og:image" content="http://img.blog.csdn.net/20160215224927567">
+<meta property="og:image" content="http://img.blog.csdn.net/20160216004901906">
+<meta property="og:image" content="http://img.blog.csdn.net/20160216014132380">
+<meta property="og:image" content="http://img.blog.csdn.net/20160216014048046">
+<meta property="og:image" content="http://img.blog.csdn.net/20160229232658184">
+<meta property="og:image" content="http://img.blog.csdn.net/20160301011953946">
+<meta property="og:image" content="http://img.blog.csdn.net/20160301170109050">
+<meta property="og:image" content="http://img.blog.csdn.net/20160301173620212">
+<meta property="og:image" content="http://img.blog.csdn.net/20160301173649268">
+<meta property="og:updated_time" content="2017-01-15T08:48:10.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="针对Android重新认识OOP">
+<meta name="twitter:description" content="内容概要 OOP基本概念 认识对象Object 类Class &amp;lt;基类/子类&amp;gt;结构 主动型与被动型API">
+<meta name="twitter:image" content="http://img.blog.csdn.net/20160215224927567">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2017/01/08/针对Android重新认识OOP/"/>
+
+  <title> 针对Android重新认识OOP | Goo's Tracks </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//tajs.qq.com/stats?sId=58321747";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+  
+  
+    
+  
+  
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Goo's Tracks</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">记一段技术小足迹</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup">
+ <span class="search-icon fa fa-search"></span>
+ <input type="text" id="local-search-input">
+ <div id="local-search-result"></div>
+ <span class="popup-btn-close">close</span>
+</div>
+
+
+    </div>
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                针对Android重新认识OOP
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-01-08T23:42:06+08:00" content="2017-01-08">
+              2017-01-08
+            </time>
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2017/01/08/针对Android重新认识OOP/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/01/08/针对Android重新认识OOP/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             <span id="/2017/01/08/针对Android重新认识OOP/" class="leancloud_visitors" data-flag-title="针对Android重新认识OOP">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="内容概要"><a href="#内容概要" class="headerlink" title="内容概要"></a>内容概要</h2><ul>
+<li>OOP基本概念</li>
+<li>认识对象Object</li>
+<li>类Class</li>
+<li>&lt;基类/子类&gt;结构</li>
+<li>主动型与被动型API<a id="more"></a></li>
+</ul>
+<h2 id="几个字尾的基本概念"><a href="#几个字尾的基本概念" class="headerlink" title="几个字尾的基本概念"></a>几个字尾的基本概念</h2><h3 id="“-Oriented”含义"><a href="#“-Oriented”含义" class="headerlink" title="“-Oriented”含义"></a>“-Oriented”含义</h3><ul>
+<li>“-Oriented”翻译，导向的，定向的</li>
+<li>“Object-oriented”相信所有程序都是由对象构成的</li>
+<li>综上，开发时，写代码，心中需要有面向对象的信仰，写各种class实现需求。</li>
+</ul>
+<h3 id="“-Based”含义"><a href="#“-Based”含义" class="headerlink" title="“-Based”含义"></a>“-Based”含义</h3><ul>
+<li>“-Based”翻译，根基，以…为基础</li>
+<li>“Requirement-based”基于需求，有先后的顺序。简单来说，就是先进行需求分析，基于分析得到的结果，再进行后续的开发活动。</li>
+</ul>
+<h3 id="“-Driven”含义"><a href="#“-Driven”含义" class="headerlink" title="“-Driven”含义"></a>“-Driven”含义</h3><ul>
+<li>“-Driven”翻译，引导，受到驱策的（不是驱动）</li>
+<li>“Model-driven”开发之前，先制定一个模型（为开发引导方向），不违背该模型前提下，进行实际开发活动</li>
+<li>“Use Case-driven”以用户的使用需求为方向，进行开发。</li>
+</ul>
+<h3 id="“-Centered”含义"><a href="#“-Centered”含义" class="headerlink" title="“-Centered”含义"></a>“-Centered”含义</h3><ul>
+<li>“-Centered”翻译，围绕…为中心</li>
+<li>“Architecture-centered”一切开发活动都围绕架构，就像在一颗圣诞树上挂灯饰。</li>
+</ul>
+<h2 id="重新认识对象（Object）"><a href="#重新认识对象（Object）" class="headerlink" title="重新认识对象（Object）"></a>重新认识对象（Object）</h2><p><strong>OOP思想中，我们所认识的一切东西，都是对象（Object）</strong></p>
+<h3 id="如何才能算认识？"><a href="#如何才能算认识？" class="headerlink" title="如何才能算认识？"></a>如何才能算<strong>认识</strong>？</h3><p>能够说出其特点并能与其他对象进行比较，而特点包括：</p>
+<ol>
+<li>对象的特征或者属性</li>
+<li>对象的行为</li>
+</ol>
+<h3 id="面向对象什么意思？"><a href="#面向对象什么意思？" class="headerlink" title="面向对象什么意思？"></a>面向对象什么意思？</h3><p>相信我们身边的一切，都是有相应的class与之对应</p>
+<h3 id="举个栗子："><a href="#举个栗子：" class="headerlink" title="举个栗子："></a>举个栗子：</h3><ol>
+<li>自然界中，鸟的特征：有翅膀，有眼睛；鸟的行为，鸣叫，飞行。</li>
+<li>代码界中，对象是由数据（Data）与函数（Function）组成。</li>
+</ol>
+<h2 id="类的用途-叙述软件对象"><a href="#类的用途-叙述软件对象" class="headerlink" title="类的用途 - 叙述软件对象"></a>类的用途 - 叙述软件对象</h2><p>类（Class）是群体（或集合），而对象是类的一个个体，需要明白<strong>对象与类的关系</strong>。<br>类是一群具有<strong>共同重要特性</strong>的对象。类的定义即是说明这群对象有什么重要的特性（包括对象的特征及其行为），而软件中，对象以数据来表达特征，以函数来表达行为。</p>
+<p>代码示例：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">People</span></span>&#123;</div><div class="line">	<span class="comment">//特征描述（运用数据来描述）</span></div><div class="line">	<span class="keyword">private</span> <span class="keyword">int</span> age;</div><div class="line">	<span class="keyword">private</span> String name;</div><div class="line">	<span class="comment">//行为描述（方法描述）</span></div><div class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">say</span><span class="params">()</span></span>&#123;</div><div class="line">	System.out.println(<span class="string">"My name is"</span>+name);</div><div class="line">	&#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line">	<span class="comment">//此时，new People()指令会产生一个People对象</span></div><div class="line">	<span class="comment">//执行时候，会使用上面定义People的模型，去创建一个people实例</span></div><div class="line">	<span class="comment">//这样，电脑内部就会有一个对象与自然界的People对应了</span></div><div class="line">	People people = <span class="keyword">new</span> People();</div><div class="line">	<span class="comment">//让该对象执行它的行为，那么电脑就会根据上面定义的行为描述去执行</span></div><div class="line">	people.say();</div></pre></td></tr></table></figure></p>
+<p>另外，<strong>实例（Instance）</strong>：与对象含义相近似，而在计算机角度，实例偏向于，开辟了的存储空间。</p>
+<h2 id="lt-基类-子类-gt-结构用途"><a href="#lt-基类-子类-gt-结构用途" class="headerlink" title="&lt;基类/子类&gt;结构用途"></a>&lt;基类/子类&gt;结构用途</h2><p><strong>继承（Inheritance）：</strong>子类会继承父类的所有特性（特征以及其行为），也可以理解成子类是父类的扩展的一种形式。</p>
+<p>对众多对象分门别类之后，可以形成一个继承体系。</p>
+<p><img src="http://img.blog.csdn.net/20160215224927567" width="400" height="200"></p>
+<p>可以这么看，Person是一个大的集合，而Teacher、Student因为自身拥有独特的特性（在满足人全部特性的前提下，老师需要教书这一行为，而学生需要做作业这一行为），所以它们是大集合中的一部分，也就是子集。</p>
+<p>而定义子类时候，使用关键字“extends”，这翻译过来正是扩展的意思，也就是在父类的基础上再拓展自己独特的部分。</p>
+<p>代码示例：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">Teacher</span> <span class="keyword">extends</span> <span class="title">Person</span></span>&#123;</div><div class="line">	<span class="comment">//...</span></div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p><strong>注意：</strong>继承的是父类的定义，而不是继承父类的定义项的具体数值。例如，父亲类年龄项，然后有个父亲对象年龄被设置成30，儿子类继承父亲类后，继承的是年龄项的这个定义，而与它后来被设置的具体数值是没有关联的。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line">//注意这种情况，如果父亲类定义时候已经设置了具体数值，那么，儿子类继承之后当然也就继承下来了</div><div class="line">//因为，这个具有具体数值的定义项一并成为了父亲类的一个特征，所以儿子类当然也会具有这个特征</div><div class="line">public class Father30&#123;</div><div class="line">		public int age = 30;</div><div class="line">	&#125;</div><div class="line"></div><div class="line">public class Son extends Father30&#123;</div><div class="line">	public void sayAge()&#123;</div><div class="line">		System.out.println(&quot;年龄：&quot;+age);</div><div class="line">	&#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line">public class main &#123;</div><div class="line">	public static void main(String[] args) &#123;</div><div class="line">		Son son = new Son();</div><div class="line">		son.sayAge();</div><div class="line">	&#125;</div><div class="line">&#125;</div><div class="line">//输出：“年龄：30”</div></pre></td></tr></table></figure>
+<h2 id="Android中的-lt-基类-子类-gt-结构"><a href="#Android中的-lt-基类-子类-gt-结构" class="headerlink" title="Android中的&lt;基类/子类&gt;结构"></a>Android中的&lt;基类/子类&gt;结构</h2><p>Android本身就提供许多完整的框架基类，而我们大多数情况下的开发，都基于框架上，继承相关类并做出相应的扩展，从而实现需求。</p>
+<p>例如：View继承框架（部分）<br><img src="http://img.blog.csdn.net/20160216004901906" width="400" height="300"></p>
+<p><strong>类与类的组合关系：</strong>接口（interface）与实现类的关系（implements），接口会定义一个<strong>等待实现</strong>的方法，实现类需要实现接口定义的方法，换一种说法，接口定义了一种格式，而实现类需要符合这种格式才能与接口对接（implements），就像电脑的USB接口，那么U盘就必须要有一个与这个接口相匹配的对接处才能接上电脑。</p>
+<p><strong>例如：</strong>Java中，提供了一个Thread基类和一个Runnable接口，那么这两个元素构成了一个框架。Thread基类有一个start方法，而Runnable接口有一个run方法。那么如何使用这个框架？Thread类需要传入一个Runnable接口的实现类，那么，就需要构造一个Runnable接口实现类。上述过程可以想像成，你需要打开U盘里面的一个文件（Thread.start();），首先你要接入U盘(传入一个Runnable接口实现类)，而你需要这个U盘是一个能够符合USB规格的U盘才能接入（需要构造一个实现Runnable接口的实现类），而且你还需要保证U盘里面有你想要的文件（也就是根据需求，实现run方法）。</p>
+<p><strong>综上：</strong>这个框架工作原理就是，Thread基类先创建一个小线程，然后该线程通过Runnable接口，呼叫实现类实现后的run方法。<br>现在，换一种方式来思考，Thread类与Runnable接口，直接看的话，看似没有什么关系，但是通过理解上面的工作原理，那么就可以这么认为了：把Runnable塞入Thread中（就像把USB接口镶嵌在笔记本电脑上），然后Thread就看成一个抽象函数（不是真的是抽象函数，只是从结构上认为），而实现类的方法会覆盖掉Thread类中的run抽象方法，这样就变成了实现类是Thread类的子类了（注意，两者不是继承关系）。</p>
+<p>原本的结构：<br><img src="http://img.blog.csdn.net/20160216014132380" width="500" height="300"></p>
+<p>将Runnable塞入Thread中后的结构：<br><img src="http://img.blog.csdn.net/20160216014048046" width="500" height="300"></p>
+<p>那么，这样不就是基类子类的结构关系了吗？<br>也说明了组合关系可以变成这样一个基类子类的关系。</p>
+<p><strong>这样可以得出一个结论：</strong><br>基类子类的结构可以呈现两种意义：</p>
+<ol>
+<li>继承关系</li>
+<li>组合关系</li>
+</ol>
+<p>代码示例：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line">//此时extends的扩展的意思，而不是继承，而继承是扩充的一种</div><div class="line">//因为run方法一定要覆盖掉才能在JMain中如此使用</div><div class="line">class Task extends Thread｛</div><div class="line">	public void run()&#123;</div><div class="line">		//根据需求实现线程功能</div><div class="line">	&#125;</div><div class="line">｝</div><div class="line"></div><div class="line">public class JMain｛</div><div class="line">	public static void main(String [] args)&#123;</div><div class="line">		Thread t = new Task();</div><div class="line">		//Task t = new Task(); 或者这么写</div><div class="line">		t.start();</div><div class="line">	&#125;</div><div class="line">｝</div></pre></td></tr></table></figure></p>
+<p>工作原理，即基类子类工作原理：<br>new子类（Task）时候，会自动new基类（Thread）的对象，而run方法又被Task实现了，所以能如此使用</p>
+<h2 id="lt-基类-子类-gt-结构的接口"><a href="#lt-基类-子类-gt-结构的接口" class="headerlink" title="&lt;基类/子类&gt;结构的接口"></a>&lt;基类/子类&gt;结构的接口</h2><p>卡榫函数（Hook函数） - 指的是接口中的方法函数，起结合基类与子类，实现PnP(Plug and Play)的作用，所谓PnP，通俗来讲，就是能够自由地接上，拔下，自由更换的意思，能够跨平台适用。</p>
+<p>以<strong>Template Method设计模式</strong>为例<br><img src="http://img.blog.csdn.net/20160229232658184" width="400" height="300"></p>
+<p>AbstractClass（基类）通过两个Hook函数与子类相连接，原理：ConcreateClass（子类）重写了Hook函数，从而使基类与子类建立了关联，基类在调用这两个Hook函数时候会调用子类重写的两个方法。</p>
+<p><strong>卡榫函数（Hook函数）及应用框架之基本原则</strong>：将变化的（Variant）与不变化的（Invariant）分离，一般而言，分离之后将不变的部分写在父类中，变化的部分写在子类中，而其目的就是为了让基类可以被复用。</p>
+<p><strong>IoC机制</strong>（Inversion of Control），继承体系中，基类函数可以主动调用子类函数（反向），而子类函数调用基类函数则是（正向）<br>，而基类函数主动调用子类函数正是典型的IoC机制。<br>基类与子类间，控制权在基类上（因为可以通过Hook函数调用子类函数），因为通常基类先写而子类后写，基类（前辈）拥有控制权控制子类（后辈）的情况，称作<strong>控制反转</strong>。</p>
+<ul>
+<li>默认行为（Default函数）<br>基类有一个重要功能：可事先定义一定量的默认（预设）行为供子类继承或者调用。</li>
+</ul>
+<h2 id="主动型与被动型API"><a href="#主动型与被动型API" class="headerlink" title="主动型与被动型API"></a>主动型与被动型API</h2><p><strong>首先通过例子来进行初步了解：</strong><br><img src="http://img.blog.csdn.net/20160301011953946" width="400" height="300"><br>解析：</p>
+<ol>
+<li><strong>基类</strong>通过Hook函数调用子类具体函数这种IoC机制的调用形式称做<strong>主动型API</strong></li>
+<li>子类正向调用基类，站在<strong>基类</strong>角度，是被调用的，因此称为<strong>被动型API</strong></li>
+</ol>
+<p>也就是说，主要是在<strong>基类的角度</strong>来区分两者的。</p>
+<ol>
+<li>由基类定义并实现某个方法，而由子类来调用，即是被动型API</li>
+<li>由基类定义某个方法，而由子类来实现，最终由基类本身来调用该方法，即是主动型API（实现该种方法弹性更高，设计更科学）</li>
+</ol>
+<p><strong>历史上的一些应用？</strong></p>
+<ol>
+<li><p>先举一个<strong>反例</strong>，1990年代初，Orbix 系统使用了被动型API，子类调用基类定义并实现的方法，当子类越来越多的时候，那么被调用的基类的方法就被固定死了，因为稍有改动就会影响到全部调用它的子类，这里子类指应用程序，而基类指系统。主动权在子类上，因此该系统不久就走向了灭亡。<br><img src="http://img.blog.csdn.net/20160301170109050" width="400" height="300"></p>
+</li>
+<li><p>Windows 系统采用了主动型API，95年时采用COM/DCOM框架定义了一个接口，而应用程序则需要实现这样一个接口，最后被该系统框架调用，控制权在系统中；<br><img src="http://img.blog.csdn.net/20160301173620212" width="400" height="300"></p>
+</li>
+<li><p>2001年改进后采用了.NET框架，建立了基类子类结构，而COM/DCOM额外定义了接口，没有基类子类的结构；.NET框架通过Hook函数与应用程序相连接，实现IoC机制，系统掌握全部控制权；但其中也有被动型API，但需要在调用主动型API的前提下才能调用被动型API。<br><img src="http://img.blog.csdn.net/20160301173649268" width="400" height="300"></p>
+</li>
+</ol>
+<p>因此，API十分重要，接口（Interface）是连接的关键，拥有接口的控制权，则拥有了主导的地位</p>
+<h3 id="Android中的API范例"><a href="#Android中的API范例" class="headerlink" title="Android中的API范例"></a>Android中的API范例</h3><p><strong>Activity：</strong><br>开发过程中，能够实现各种各样的功能与效果，看似很自由，实际上，我们都是在根据需求来实现一些系统接口，而这些接口正是掌握在Google定义的Activity基类中，再仔细看。</p>
+<p><strong>onCreate方法为例</strong><br>实现原理：Activity基类先调用onCreate方法接口，而onCreate这个接口又连接到UserActivity（开发者写的Activity）子类中的onCreate方法。<br>即：onCreate这个接口是Activity基类定义的，再通过UserActivity子类实现，最后由Activity基类调用UserActivity的具体实现。</p>
+<ul>
+<li>再看onClickListener的onClick方法，由基类OnClickListener来定义，由App开发者来实现，最后由OnClickListener基类来调用。Android中主动型API处处可见。</li>
+</ul>
+<h3 id="总结，接口与类"><a href="#总结，接口与类" class="headerlink" title="总结，接口与类"></a>总结，接口与类</h3><p>OOP中，将接口定义为一种特殊的类。因为OOP中，一切都是由类构成的。<br>C++中类别有三种:</p>
+<ol>
+<li>具象类（所有函数都是有具体实现的）</li>
+<li>抽象类（有一个或者多个函数是抽象的）</li>
+<li><strong>纯粹抽象类</strong>（全部函数都是抽象的，而Java中将该类别称为<strong>接口-Interface</strong>）</li>
+</ol>
+<p><strong>IoC机制在Java中的实现</strong>（也就是我们最常用的使用<strong>接口实现类</strong>）<br><strong>以Runnable接口为例</strong><br>直接来看，Task与Thread是通过Runnable接口来进行关联的，并不存在基类子类的关系，但是因为Thread的构造方法需要传入一个Runnable接口的实现类，可以认为Thread类内部有一个Runnable接口，再将Runnable接口中的run方法放入Thread类中，而Task实现了Thread定义的run方法，那么Thread与Task的基类子类关系就成立了。</p>
+<p><strong>IoC机制</strong>代码简单实现<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">class Task implments Runnable&#123;</div><div class="line">	public void run()&#123;</div><div class="line">		//...</div><div class="line">	&#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line">public class JMain&#123;</div><div class="line">	public static void main(String[] args)&#123;</div><div class="line">	Thread t = new Thread(new Tasks());</div><div class="line">	t.start();</div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h2 id="学习资源推荐"><a href="#学习资源推荐" class="headerlink" title="学习资源推荐"></a>学习资源推荐</h2><p>Android从程序员到架构师之路系列视频 - 高焕堂；</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+    <div>感谢您的阅读，希望文章对您有所帮助</div>
+    <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+      <span>赏</span>
+    </button>
+    <div id="QR" style="display: none;">
+      
+        <div id="wechat" style="display: inline-block">
+          <img id="wechat_qr" src="/images/wechatpay.png" alt="Goo WeChat Pay"/>
+          <p>微信打赏</p>
+        </div>
+      
+      
+        <div id="alipay" style="display: inline-block">
+          <img id="alipay_qr" src="/images/alipay.png" alt="Goo Alipay"/>
+          <p>支付宝打赏</p>
+        </div>
+      
+    </div>
+  </div>
+
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/设计思想/" rel="tag">#设计思想</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/01/15/拆轮子系列 - Retrofit/" rel="next" title="拆轮子系列 - 如何由浅入深探索 Retrofit 源码？">
+                <i class="fa fa-chevron-left"></i> 拆轮子系列 - 如何由浅入深探索 Retrofit 源码？
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/01/04/Android消息机制/" rel="prev" title="Android进阶 - 消息处理机制探索">
+                Android进阶 - 消息处理机制探索 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <div class="ds-share flat" data-thread-key="2017/01/08/针对Android重新认识OOP/"
+     data-title="针对Android重新认识OOP"
+     data-content=""
+     data-url="http://yoursite.com/2017/01/08/针对Android重新认识OOP/">
+  <div class="ds-share-inline">
+    <ul  class="ds-share-icons-16">
+
+      <li data-toggle="ds-share-icons-more"><a class="ds-more" href="javascript:void(0);">分享到：</a></li>
+      <li><a class="ds-weibo" href="javascript:void(0);" data-service="weibo">微博</a></li>
+      <li><a class="ds-qzone" href="javascript:void(0);" data-service="qzone">QQ空间</a></li>
+      <li><a class="ds-qqt" href="javascript:void(0);" data-service="qqt">腾讯微博</a></li>
+      <li><a class="ds-wechat" href="javascript:void(0);" data-service="wechat">微信</a></li>
+
+    </ul>
+    <div class="ds-share-icons-more">
+    </div>
+  </div>
+</div>
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2017/01/08/针对Android重新认识OOP/"
+           data-title="针对Android重新认识OOP" data-url="http://yoursite.com/2017/01/08/针对Android重新认识OOP/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/icon.png"
+               alt="Goo" />
+          <p class="site-author-name" itemprop="name">Goo</p>
+          <p class="site-description motion-element" itemprop="description">沿路走到这里，尽量不要后退</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">15</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">12</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/Goo-Yao" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-fw fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://www.jianshu.com/u/21d2303e41a6" target="_blank" title="简书">
+                  
+                    <i class="fa fa-fw fa-globe"></i>
+                  
+                  简书
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#内容概要"><span class="nav-number">1.</span> <span class="nav-text">内容概要</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#几个字尾的基本概念"><span class="nav-number">2.</span> <span class="nav-text">几个字尾的基本概念</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#“-Oriented”含义"><span class="nav-number">2.1.</span> <span class="nav-text">“-Oriented”含义</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#“-Based”含义"><span class="nav-number">2.2.</span> <span class="nav-text">“-Based”含义</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#“-Driven”含义"><span class="nav-number">2.3.</span> <span class="nav-text">“-Driven”含义</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#“-Centered”含义"><span class="nav-number">2.4.</span> <span class="nav-text">“-Centered”含义</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#重新认识对象（Object）"><span class="nav-number">3.</span> <span class="nav-text">重新认识对象（Object）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#如何才能算认识？"><span class="nav-number">3.1.</span> <span class="nav-text">如何才能算认识？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#面向对象什么意思？"><span class="nav-number">3.2.</span> <span class="nav-text">面向对象什么意思？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#举个栗子："><span class="nav-number">3.3.</span> <span class="nav-text">举个栗子：</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#类的用途-叙述软件对象"><span class="nav-number">4.</span> <span class="nav-text">类的用途 - 叙述软件对象</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#lt-基类-子类-gt-结构用途"><span class="nav-number">5.</span> <span class="nav-text"><基类/子类>结构用途</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Android中的-lt-基类-子类-gt-结构"><span class="nav-number">6.</span> <span class="nav-text">Android中的<基类/子类>结构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#lt-基类-子类-gt-结构的接口"><span class="nav-number">7.</span> <span class="nav-text"><基类/子类>结构的接口</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#主动型与被动型API"><span class="nav-number">8.</span> <span class="nav-text">主动型与被动型API</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Android中的API范例"><span class="nav-number">8.1.</span> <span class="nav-text">Android中的API范例</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#总结，接口与类"><span class="nav-number">8.2.</span> <span class="nav-text">总结，接口与类</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#学习资源推荐"><span class="nav-number">9.</span> <span class="nav-text">学习资源推荐</span></a></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Goo</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.0.1"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"goo-tracks"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+    <script src="/lib/ua-parser-js/dist/ua-parser.min.js?v=0.7.9"></script>
+    <script src="/js/src/hook-duoshuo.js"></script>
+  
+
+
+
+
+
+
+  
+  
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length == 0) {
+       search_path = "search.xml";
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    function proceedsearch() {
+      $("body").append('<div class="popoverlay">').css('overflow', 'hidden');
+      $('.popup').toggle();
+
+    }
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+    'use strict';
+    $.ajax({
+        url: path,
+        dataType: "xml",
+        async: true,
+        success: function( xmlResponse ) {
+            // get the contents from search data
+            isfetched = true;
+            $('.popup').detach().appendTo('.header-inner');
+            var datas = $( "entry", xmlResponse ).map(function() {
+                return {
+                    title: $( "title", this ).text(),
+                    content: $("content",this).text(),
+                    url: $( "url" , this).text()
+                };
+            }).get();
+            var $input = document.getElementById(search_id);
+            var $resultContent = document.getElementById(content_id);
+            $input.addEventListener('input', function(){
+                var matchcounts = 0;
+                var str='<ul class=\"search-result-list\">';
+                var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                $resultContent.innerHTML = "";
+                if (this.value.trim().length > 1) {
+                // perform local searching
+                datas.forEach(function(data) {
+                    var isMatch = true;
+                    var content_index = [];
+                    var data_title = data.title.trim().toLowerCase();
+                    var data_content = data.content.trim().replace(/<[^>]+>/g,"").toLowerCase();
+                    var data_url = data.url;
+                    var index_title = -1;
+                    var index_content = -1;
+                    var first_occur = -1;
+                    // only match artiles with not empty titles and contents
+                    if(data_title != '' && data_content != '') {
+                        keywords.forEach(function(keyword, i) {
+                            index_title = data_title.indexOf(keyword);
+                            index_content = data_content.indexOf(keyword);
+                            if( index_title < 0 && index_content < 0 ){
+                                isMatch = false;
+                            } else {
+                                if (index_content < 0) {
+                                    index_content = 0;
+                                }
+                                if (i == 0) {
+                                    first_occur = index_content;
+                                }
+                            }
+                        });
+                    }
+                    // show search results
+                    if (isMatch) {
+                        matchcounts += 1;
+                        str += "<li><a href='"+ data_url +"' class='search-result-title'>"+ data_title +"</a>";
+                        var content = data.content.trim().replace(/<[^>]+>/g,"");
+                        if (first_occur >= 0) {
+                            // cut out 100 characters
+                            var start = first_occur - 20;
+                            var end = first_occur + 80;
+                            if(start < 0){
+                                start = 0;
+                            }
+                            if(start == 0){
+                                end = 50;
+                            }
+                            if(end > content.length){
+                                end = content.length;
+                            }
+                            var match_content = content.substring(start, end);
+                            // highlight all keywords
+                            keywords.forEach(function(keyword){
+                                var regS = new RegExp(keyword, "gi");
+                                match_content = match_content.replace(regS, "<b class=\"search-keyword\">"+keyword+"</b>");
+                            });
+
+                            str += "<p class=\"search-result\">" + match_content +"...</p>"
+                        }
+                        str += "</li>";
+                    }
+                })};
+                str += "</ul>";
+                if (matchcounts == 0) { str = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>' }
+                if (keywords == "") { str = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>' }
+                $resultContent.innerHTML = str;
+            });
+            proceedsearch();
+        }
+    });}
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched == false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+
+    });
+
+    $('.popup-btn-close').click(function(e){
+      $('.popup').hide();
+      $(".popoverlay").remove();
+      $('body').css('overflow', '');
+    });
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+  </script>
+
+
+  
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("BSwPKiNckzvJX4DpBuM5IM9Y-gzGzoHsz", "cRHrGaMhc9VOu2qDwkwSfrXx");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+</body>
+</html>
